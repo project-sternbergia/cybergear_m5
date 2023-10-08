@@ -7,6 +7,7 @@ M5 stack library for cybergear
 * [Xiaomi Cybergear](https://www.mi.com/cyber-gear)
 * [M5Stack Basic V2.7](https://www.switch-science.com/products/9010?variant=42698454925510)
 * [M5Stack Commu module \[M001\]](https://www.switch-science.com/products/5790?variant=42382075527366)
+* [XT30(2+2)-F](https://www.china-amass.com/product/contain/1Yf5h7G4u1927079)
 
 ## HW Connection
 
