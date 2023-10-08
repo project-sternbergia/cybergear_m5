@@ -107,6 +107,18 @@ public:
   void set_current_ref(float current);
 
   /**
+   * @brief Set the mech position to zero object
+   */
+  void set_mech_position_to_zero();
+
+  /**
+   * @brief Set target can id
+   * 
+   * @param can_id can id
+   */
+  void change_motor_can_id(uint8_t can_id);
+
+  /**
    * @brief Read ram data from target motor
    *        If you need detailed information of RAM, please check the datasheet 4.1.11
    *

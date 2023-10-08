@@ -25,13 +25,13 @@ void CybergearDriver::init_motor(uint8_t run_mode)
 
 void CybergearDriver::enable_motor()
 {
-  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t data[8] = {0x00};
   send_command(target_can_id_, CMD_ENABLE, master_can_id_, 8, data);
 }
 
 void CybergearDriver::reset_motor()
 {
-  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t data[8] = {0x00};
   send_command(target_can_id_, CMD_RESET, master_can_id_, 8, data);
 }
 
@@ -39,7 +39,7 @@ void CybergearDriver::set_run_mode(uint8_t run_mode)
 {
   // set class variable
   run_mode_ = run_mode;
-  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t data[8] = {0x00};
   data[0] = ADDR_RUN_MODE & 0x00FF;
   data[1] = ADDR_RUN_MODE >> 8;
   data[4] = run_mode;
@@ -82,11 +82,25 @@ void CybergearDriver::set_current_ref(float current)
   write_float_data(target_can_id_, ADDR_IQ_REF, current, IQ_MIN, IQ_MAX);
 }
 
+void CybergearDriver::set_mech_position_to_zero()
+{
+  uint8_t data[8] = {0x00};
+  data[0] = 0x01;
+  send_command(target_can_id_, CMD_SET_MECH_POSITION_TO_ZERO, master_can_id_, 8, data);
+}
+
+void CybergearDriver::change_motor_can_id(uint8_t can_id)
+{
+  uint8_t data[8] = {0x00};
+  uint16_t option = can_id << 8 | master_can_id_;
+  send_command(target_can_id_, CMD_SET_MECH_POSITION_TO_ZERO, option, 8, data);
+}
+
 void CybergearDriver::read_ram_data(uint16_t index)
 {
   uint8_t data[8] = {0x00};
   memcpy(&data[0], &index, 2);
-  send_command(target_can_id_, CMD_RAM_READ, 0x00, 8, data);
+  send_command(target_can_id_, CMD_RAM_READ, master_can_id_, 8, data);
 }
 
 uint8_t CybergearDriver::get_run_mode() const
@@ -181,12 +195,6 @@ uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
     return RET_CYBERGEAR_INVALID_PACKET;
   }
 
-  // parse and update motor status
-  // uint16_t position, velocity, effort, temp;
-  // memcpy(&position, receive_buffer_, 2);
-  // memcpy(&velocity, receive_buffer_ + 2, 2);
-  // memcpy(&effort, receive_buffer_ + 4, 2);
-  // memcpy(&temp, receive_buffer_ + 6, 2);
   uint16_t position = receive_buffer_[1] | receive_buffer_[0] << 8;
   uint16_t velocity = receive_buffer_[3] | receive_buffer_[2] << 8;
   uint16_t effort = receive_buffer_[5] | receive_buffer_[4] << 8;

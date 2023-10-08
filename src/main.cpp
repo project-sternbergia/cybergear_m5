@@ -38,6 +38,7 @@ void setup()
   init_can();
   driver.init(&CAN0);
   driver.init_motor(mode);
+  driver.set_limit_speed(30.0f);
   draw_display(mode, true);
 }
 
