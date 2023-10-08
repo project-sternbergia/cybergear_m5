@@ -10,11 +10,15 @@
  */
 struct MotorStatus
 {
-  uint8_t motor_id;   //!< motor id
-  float position;     //!< encoder position (-4pi to 4pi)
-  float velocity;     //!< motor velocity (-30rad/s to 30rad/s)
-  float effort;       //!< motor effort (-12Nm - 12Nm)
-  float temperature;  //!< temperature
+  uint8_t motor_id;             //!< motor id
+  float position;               //!< encoder position (-4pi to 4pi)
+  float velocity;               //!< motor velocity (-30rad/s to 30rad/s)
+  float effort;                 //!< motor effort (-12Nm - 12Nm)
+  float temperature;            //!< temperature
+  uint16_t raw_position;        //!< raw position (for sync data)
+  uint16_t raw_velocity;        //!< raw velocity (for sync data)
+  uint16_t raw_effort;          //!< raw effort (for sync data)
+  uint16_t raw_temperature;     //!< raw temperature (for sync data)
 };
 
 
@@ -113,7 +117,7 @@ public:
 
   /**
    * @brief Set target can id
-   * 
+   *
    * @param can_id can id
    */
   void change_motor_can_id(uint8_t can_id);

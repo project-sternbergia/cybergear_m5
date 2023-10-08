@@ -195,17 +195,17 @@ uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
     return RET_CYBERGEAR_INVALID_PACKET;
   }
 
-  uint16_t position = receive_buffer_[1] | receive_buffer_[0] << 8;
-  uint16_t velocity = receive_buffer_[3] | receive_buffer_[2] << 8;
-  uint16_t effort = receive_buffer_[5] | receive_buffer_[4] << 8;
-  uint16_t temp = receive_buffer_[7] | receive_buffer_[6] << 8;
+  mot.raw_position = receive_buffer_[1] | receive_buffer_[0] << 8;
+  mot.raw_velocity = receive_buffer_[3] | receive_buffer_[2] << 8;
+  mot.raw_effort = receive_buffer_[5] | receive_buffer_[4] << 8;
+  mot.raw_temperature = receive_buffer_[7] | receive_buffer_[6] << 8;
 
   // convert motor data
   mot.motor_id = motor_can_id;
-  mot.position = uint_to_float(position, P_MIN, P_MAX);
-  mot.velocity = uint_to_float(velocity, V_MIN, V_MAX);
-  mot.effort = uint_to_float(effort, T_MIN, T_MAX);
-  mot.temperature = temp;
+  mot.position = uint_to_float(mot.raw_position, P_MIN, P_MAX);
+  mot.velocity = uint_to_float(mot.raw_velocity, V_MIN, V_MAX);
+  mot.effort = uint_to_float(mot.raw_effort, T_MIN, T_MAX);
+  mot.temperature = mot.raw_temperature;
 
   return RET_CYBERGEAR_OK;
 }
