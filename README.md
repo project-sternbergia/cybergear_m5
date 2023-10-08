@@ -1,4 +1,4 @@
-# cybergear_m5
+![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/a47ea3d4-9b1e-4b92-ba39-3b135228360c)# cybergear_m5
 
 M5 stack library for cybergear
 
@@ -12,7 +12,7 @@ M5 stack library for cybergear
 
 ## HW Connection
 
-<img width="1431" alt="CyberGear_M5_Connection" src="https://github.com/project-sternbergia/cybergear_m5/assets/147309062/bfea6f1d-0354-4c4d-876a-ae3e4dba1dc7">
+<img width="1433" alt="CyberGear_M5_Connection" src="https://github.com/project-sternbergia/cybergear_m5/assets/147309062/9b91fcb8-8bbb-4cae-8553-43e4e26526c8">
 
 ## How to build
 
