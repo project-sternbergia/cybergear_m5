@@ -10,8 +10,7 @@ M5 stack library for cybergear
 
 ## HW Connection
 
-<img width="1430" alt="CyberGear_M5_Connection" src="https://github.com/project-sternbergia/cybergear_m5/assets/147309062/3b8e0342-47a5-4c68-ae82-f2fbbb8c88b5">
-
+<img width="1431" alt="CyberGear_M5_Connection" src="https://github.com/project-sternbergia/cybergear_m5/assets/147309062/bfea6f1d-0354-4c4d-876a-ae3e4dba1dc7">
 
 ## How to build
 
