@@ -1,4 +1,4 @@
-![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/a47ea3d4-9b1e-4b92-ba39-3b135228360c)# cybergear_m5
+# cybergear_m5
 
 M5 stack library for cybergear
 
