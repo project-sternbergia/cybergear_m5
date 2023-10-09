@@ -12,9 +12,13 @@ M5 stack library for cybergear
 
 ## HW Connection
 
-<img width="1438" alt="CyberGear_M5_Connection" src="https://github.com/project-sternbergia/cybergear_m5/assets/147309062/86414c87-f544-40fe-ac2e-aeb2eaee51bc">
+![CyberGear_M5_Connection](doc/cybergear_m5_connection.png)
 
-## How to build
+## How to build (PlatformIO)
+
+TBD
+
+## How to build (Arduino IDE)
 
 TBD
 
