@@ -146,7 +146,7 @@ void loop()
 
   // check mode change
   if(M5.BtnB.wasPressed()) {
-    mode = (mode + 1) % (MODE_CURRENT + 1);
+    mode = (mode + 1) % MODE_CURRENT + 1;
     driver.init_motor(mode);
     target_pos = 0.0;
     target_vel = 0.0;
