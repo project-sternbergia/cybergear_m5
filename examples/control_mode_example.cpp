@@ -4,41 +4,73 @@
 #include <M5Stack.h>
 #include "cybergear_driver.hh"
 
+#define INC_POSITION  20.0
+#define INC_VELOCITY  0.4
+#define INC_TORQUE    0.04
+
+
+/**
+ * @brief Init can interface
+ */
 void init_can();
+
+/**
+ * @brief Draw display
+ *
+ * @param mode current, speed, position, motion mode
+ * @param is_mode_change mode change flag
+ */
 void draw_display(uint8_t mode, bool is_mode_change = false);
+
+/**
+ * @brief Get the color and mode
+ *
+ * @param mode target mode
+ * @param color mode color
+ * @param mode_str mode string
+ */
 void get_color_and_mode_str(uint8_t mode, uint16_t & color, String & mode_str);
 
-#define CAN0_INT 15  // Set INT to pin 2
 
+// init MCP_CAN object
+#define CAN0_INT 15  // Set INT to pin 2
 MCP_CAN CAN0(12);    // Set CS to pin 10
 
+// setup master can id and motor can id (default cybergear can id is 0x7F)
 uint8_t MASTER_CAN_ID = 0x00;
 uint8_t MOT_CAN_ID = 0x7F;
 
+// init cybergeardriver
 CybergearDriver driver = CybergearDriver(MASTER_CAN_ID, MOT_CAN_ID);
 MotorStatus motor_status;
+
+// init sprite for display
 TFT_eSprite sprite = TFT_eSprite(&sprite);
 
-uint8_t mode = MODE_POSITION;
-float target_pos = 0.0;
-float dir = 1.0f;
-float target_vel = 0.0;
-float target_torque = 0.0;
-float default_kp = 50.0f;
-float default_kd = 1.0f;
+uint8_t mode = MODE_POSITION;   //!< current mode
+float target_pos = 0.0;         //!< motor target position
+float target_vel = 0.0;         //!< motor target velocity
+float target_torque = 0.0;      //!< motor target torque
+float dir = 1.0f;               //!< direction for motion mode
+float default_kp = 50.0f;       //!< default kp for motion mode
+float default_kd = 1.0f;        //!< default kd for motion mode
 
 void setup()
 {
   M5.begin();
 
+  // init sprite
   sprite.setColorDepth(8);
   sprite.setTextSize(3);
   sprite.createSprite(M5.Lcd.width(), M5.Lcd.height());
 
+  // init cybergear driver
   init_can();
   driver.init(&CAN0);
   driver.init_motor(mode);
   driver.set_limit_speed(30.0f);
+
+  // display current status
   draw_display(mode, true);
 }
 
@@ -114,7 +146,6 @@ void loop()
 
   // check mode change
   if(M5.BtnB.wasPressed()) {
-    // mode_current が一番大きいので
     mode = (mode + 1) % (MODE_CURRENT + 1);
     driver.init_motor(mode);
     target_pos = 0.0;
@@ -124,25 +155,25 @@ void loop()
 
   } else if (M5.BtnC.wasPressed()) {
     if (mode == MODE_POSITION) {
-      target_pos += 20.0 / 180.0f * M_PI;
+      target_pos += INC_POSITION / 180.0f * M_PI;
 
     } else if (mode == MODE_SPEED) {
-      target_vel += 0.4;
+      target_vel += INC_VELOCITY;
 
     } else if (mode == MODE_CURRENT) {
-      target_torque += 0.04;
+      target_torque += INC_TORQUE;
     }
     draw_display(mode);
 
   } else if (M5.BtnA.wasPressed()) {
     if (mode == MODE_POSITION) {
-      target_pos -= 20.0 / 180.0f * M_PI;
+      target_pos -= INC_POSITION / 180.0f * M_PI;
 
     } else if (mode == MODE_SPEED) {
-      target_vel -= 0.4;
+      target_vel -= INC_VELOCITY;
 
     } else if (mode == MODE_CURRENT) {
-      target_torque -= 0.04;
+      target_torque -= INC_TORQUE;
     }
     draw_display(mode);
   }
