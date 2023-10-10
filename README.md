@@ -38,6 +38,18 @@ git clone https://github.com/project-sternbergia/cybergear_m5.git
 
 3. Build and write firmware to M5Stack
 
+## Sample Code
+
+### control_mode_example.ino
+
+Check cybergear behaviour using M5 stack.
+
+* Middle Button - Change Control Mode (Position Mode -> Speed Mode -> Current Mode)
+* Right Button  - Increase control value
+* Left Button  - Decrease control value
+
+![CyberGear_M5_Control_Mode](docs/img/cybergear_m5_sample_control_mode.gif)
+
 ## References
 
 * Xiaomi Cybergear 微电机使用说明书
