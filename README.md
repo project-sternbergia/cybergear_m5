@@ -35,8 +35,10 @@ git clone https://github.com/project-sternbergia/cybergear_m5.git
 ```
 
 2. Open [cybergear_m5/examples/control_mode_example.ino](https://github.com/project-sternbergia/cybergear_m5/blob/main/examples/control_mode_example.ino) with Arduino IDE
-　 ![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/8a4edd90-241c-4683-a13d-4a26685e8251)
-　Put this file in the same folder as control_mode_example.ino (for Arduino IDE)
+
+    ![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/8a4edd90-241c-4683-a13d-4a26685e8251)
+
+    Put this file in the same folder as control_mode_example.ino (for Arduino IDE)
   
 
 4. Build and write firmware to M5Stack
