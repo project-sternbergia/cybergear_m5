@@ -30,11 +30,17 @@ class CybergearDriver
 public:
   /**
    * @brief Construct a new Cybergear Driver object
+   */
+  CybergearDriver();
+
+  /**
+   * @brief Construct a new Cybergear Driver object
    *
    * @param master_can_id   master_can_id (this host)
    * @param motor_can_id   master_can_id (this host)
    */
   CybergearDriver(uint8_t master_can_id, uint8_t target_can_id);
+
   virtual ~CybergearDriver();
 
   /**
@@ -88,6 +94,41 @@ public:
    * @param speed speed limit for speed control mode (run mode 2). limit range is 0.0[rad/s] to 30.0[rad/s]
    */
   void set_limit_speed(float speed);
+
+  /**
+   * @brief Set the limit current for current control mode
+   *
+   * @param speed speed limit for speed control mode (run mode 2). limit range is 0.0[rad/s] to 30.0[rad/s]
+   */
+  void set_limit_current(float current);
+
+  /**
+   * @brief Set the current kp
+   *
+   * @param kp kp value for current control. limit range is 0.0f to KP_MAX.
+   */
+  void set_current_kp(float kp);
+
+  /**
+   * @brief Set the current ki
+   *
+   * @param ki ki value for current control. limit range is unknown so this api is now disabled.
+   */
+  void set_current_ki(float ki);
+
+  /**
+   * @brief Set the current filter gain
+   *
+   * @param gain gain value for current control. limit range is 0.0f to CURRENT_FILTER_GAIN_MAX (1.0f)
+   */
+  void set_current_filter_gain(float gain);
+
+  /**
+   * @brief Set the limit speed for speed control mode
+   *
+   * @param speed speed limit for speed control mode (run mode 2). limit range is 0.0[rad/s] to 30.0[rad/s]
+   */
+  void set_limit_torque(float torque);
 
   /**
    * @brief Set position reference for position control mode
@@ -145,12 +186,23 @@ public:
   uint8_t get_motor_id() const;
 
   /**
-   * @brief Update motor status from can buffer
+   * @brief Update motor status from can object
    *
    * @return true   motor status updated
    * @return false  motor status not updated
    */
-  bool update_motor_status();
+  bool process_can_packet();
+
+  /**
+   * @brief Update motor status from buffer
+   *
+   * @param id      received can id
+   * @param data    received can data
+   * @param len     received data length
+   * @return true   motor status updated
+   * @return false  motor status not updated
+   */
+  bool update_motor_status(unsigned long id, const uint8_t * data, unsigned long len);
 
   /**
    * @brief Get the motor status object

@@ -1,5 +1,13 @@
 #include "cybergear_driver.hh"
+#include "cybergear_driver_defs.hh"
 #include <Arduino.h>
+
+CybergearDriver::CybergearDriver()
+  : can_(NULL)
+  , master_can_id_(0)
+  , target_can_id_(0)
+  , run_mode_(MODE_MOTION)
+{}
 
 CybergearDriver::CybergearDriver(uint8_t master_can_id, uint8_t target_can_id)
   : can_(NULL)
@@ -67,6 +75,32 @@ void CybergearDriver::set_limit_speed(float speed)
   write_float_data(target_can_id_, ADDR_LIMIT_SPEED, speed, 0.0f, V_MAX);
 }
 
+void CybergearDriver::set_limit_current(float current)
+{
+  write_float_data(target_can_id_, ADDR_LIMIT_CURRENT, current, 0.0f, IQ_MAX);
+}
+
+void CybergearDriver::set_current_kp(float kp)
+{
+  write_float_data(target_can_id_, ADDR_CURRENT_KP, kp, 0.0f, KP_MAX);
+}
+
+void CybergearDriver::set_current_ki(float ki)
+{
+  // NOT SUPPOTED (no information about limit on manual)
+  // write_float_data(target_can_id_, ADDR_CURRENT_KI, ki, 0.0f, KI_MAX);
+}
+
+void CybergearDriver::set_current_filter_gain(float gain)
+{
+  write_float_data(target_can_id_, ADDR_CURRENT_FILTER_GAIN, gain, CURRENT_FILTER_GAIN_MIN, CURRENT_FILTER_GAIN_MAX);
+}
+
+void CybergearDriver::set_limit_torque(float torque)
+{
+  write_float_data(target_can_id_, ADDR_LIMIT_TORQUE, torque, 0.0f, T_MAX);
+}
+
 void CybergearDriver::set_position_ref(float position)
 {
   write_float_data(target_can_id_, ADDR_LOC_REF, position, P_MIN, P_MAX);
@@ -113,7 +147,7 @@ uint8_t CybergearDriver::get_motor_id() const
   return target_can_id_;
 }
 
-bool CybergearDriver::update_motor_status()
+bool CybergearDriver::process_can_packet()
 {
   bool check_update = false;
   while (true) {
@@ -122,6 +156,40 @@ bool CybergearDriver::update_motor_status()
     else if (ret == RET_CYBERGEAR_MSG_NOT_AVAIL) break;
   }
   return check_update;
+}
+
+bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data, unsigned long len)
+{
+  // if id is not mine
+  uint8_t receive_can_id = id & 0xff;
+  if ( receive_can_id != master_can_id_ ) {
+    return false;
+  }
+
+  uint8_t motor_can_id = (id & 0xff00) >> 8;
+  if ( motor_can_id != target_can_id_ ) {
+    return false;
+  }
+
+  // check packet type
+  uint8_t packet_type = (id & 0x3F000000) >> 24;
+  if ( packet_type != CMD_RESPONSE ) {
+    return false;
+  }
+
+  motor_status_.raw_position = data[1] | data[0] << 8;
+  motor_status_.raw_velocity = data[3] | data[2] << 8;
+  motor_status_.raw_effort = data[5] | data[4] << 8;
+  motor_status_.raw_temperature = data[7] | data[6] << 8;
+
+  // convert motor data
+  motor_status_.motor_id = motor_can_id;
+  motor_status_.position = uint_to_float(motor_status_.raw_position, P_MIN, P_MAX);
+  motor_status_.velocity = uint_to_float(motor_status_.raw_velocity, V_MIN, V_MAX);
+  motor_status_.effort = uint_to_float(motor_status_.raw_effort, T_MIN, T_MAX);
+  motor_status_.temperature = motor_status_.raw_temperature;
+
+  return true;
 }
 
 MotorStatus CybergearDriver::get_motor_status() const
@@ -174,7 +242,7 @@ uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
   unsigned long id;
   uint8_t len;
   can_->readMsgBuf(&id, &len, receive_buffer_);
-  print_can_packet(id, receive_buffer_, len);
+  // print_can_packet(id, receive_buffer_, len);
 
   // if id is not mine
   uint8_t receive_can_id = id & 0xff;

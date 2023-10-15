@@ -39,6 +39,12 @@
 #define T_MAX      12.0f
 #define IQ_MIN     -27.0f
 #define IQ_MAX      27.0f
+#define CURRENT_FILTER_GAIN_MIN 0.0f
+#define CURRENT_FILTER_GAIN_MAX 1.0f
+
+#define DEFAULT_CURRENT_KP           0.125f
+#define DEFAULT_CURRENT_KI           0.0158f
+#define DEFAULT_CURRENT_FINTER_GAIN  0.1f
 
 #define RET_CYBERGEAR_OK              0x00
 #define RET_CYBERGEAR_MSG_NOT_AVAIL   0x01
