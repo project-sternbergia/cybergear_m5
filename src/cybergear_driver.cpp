@@ -127,7 +127,7 @@ void CybergearDriver::change_motor_can_id(uint8_t can_id)
 {
   uint8_t data[8] = {0x00};
   uint16_t option = can_id << 8 | master_can_id_;
-  send_command(target_can_id_, CMD_SET_MECH_POSITION_TO_ZERO, option, 8, data);
+  send_command(target_can_id_, CMD_CHANGE_CAN_ID, option, 8, data);
 }
 
 void CybergearDriver::read_ram_data(uint16_t index)
