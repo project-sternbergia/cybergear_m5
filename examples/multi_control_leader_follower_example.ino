@@ -54,9 +54,8 @@ void loop()
     controller.get_motor_status(status_list);
   }
 
-  float curr = (status_list[0].position - status_list[1].position) * 1.0f;
-  currents[1] = curr;
-  Serial.println(currents[1]);
+  currents[0] = (status_list[1].position - status_list[0].position) * 1.0f;
+  currents[1] = (status_list[0].position - status_list[1].position) * 1.0f;
   delay(1);
 }
 
