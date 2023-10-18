@@ -38,12 +38,12 @@ void setup()
 
 void loop()
 {
-  // update m5 satatus
   M5.update();
 }
 
 void init_can()
 {
+  CAN0.begin(MCP_ANY, CAN_1000KBPS, MCP_8MHZ);
   CAN0.setMode(MCP_NORMAL);  // Set operation mode to normal so the MCP2515 sends acks to received data.
   pinMode(CAN0_INT, INPUT);  // Configuring pin for /INT input
 }
