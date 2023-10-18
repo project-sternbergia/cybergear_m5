@@ -195,7 +195,7 @@ void loop()
   }
 
   // update and get motor data
-  if ( driver.update_motor_status() ) {
+  if ( driver.process_can_packet() ) {
     motor_status = driver.get_motor_status();
     draw_display(mode);
   }
