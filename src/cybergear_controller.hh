@@ -97,12 +97,30 @@ public:
   bool enable_motors();
 
   /**
+   * @brief enable motor
+   *
+   * @param id      target motor
+   * @param mode    motor mode
+   * @return true   success
+   * @return false  failed
+   */
+  bool enable_motor(uint8_t id, uint8_t mode);
+
+  /**
    * @brief disable motors
    *
    * @return true   success
    * @return false  failed
    */
-  bool disable_motors();
+  bool reset_motors();
+
+  /**
+   * @brief disable motors
+   *
+   * @return true   success
+   * @return false  failed
+   */
+  bool reset_motor(uint8_t id);
 
   /**
    * @brief send motion command for each motors
@@ -184,6 +202,8 @@ public:
    */
   bool send_current_command(uint8_t id, float current);
 
+  bool set_mech_position_to_zero(uint8_t id);
+
   /**
    * @brief Get the motor status stored by processs can packet
    *
@@ -211,6 +231,10 @@ public:
    */
   bool process_can_packet();
 
+  bool check_update_flag(uint8_t id);
+  bool reset_update_flag(uint8_t id);
+  std::vector<uint8_t> motor_ids() const;
+
 private:
   typedef std::unordered_map<uint8_t, CybergearDriver> CybergearDriverMap;
   typedef std::unordered_map<uint8_t, CybergearConfig> CybergearConfigMap;
@@ -218,6 +242,7 @@ private:
   bool check_motor_id(uint8_t id);
 
   std::vector<uint8_t> motor_ids_;
+  std::unordered_map<uint8_t, bool> motor_update_flag_;
   CybergearDriverMap drivers_;
   CybergearConfigMap configs_;
   uint8_t control_mode_;

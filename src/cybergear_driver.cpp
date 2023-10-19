@@ -1,6 +1,7 @@
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
 #include <Arduino.h>
+#include <M5Stack.h>
 
 CybergearDriver::CybergearDriver()
   : can_(NULL)
@@ -28,7 +29,6 @@ void CybergearDriver::init_motor(uint8_t run_mode)
 {
   reset_motor();
   set_run_mode(run_mode);
-	enable_motor();
 }
 
 void CybergearDriver::enable_motor()
