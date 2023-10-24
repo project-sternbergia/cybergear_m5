@@ -2,6 +2,8 @@
 
 M5 stack library for cybergear
 
+*"Remember, with great torque comes great responsibility."*
+
 ## Supported framework
 
 * Arduino for ESP32
