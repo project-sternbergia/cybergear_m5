@@ -16,11 +16,24 @@ M5 stack library for cybergear
 * [M5Stack Basic V2.7](https://shop.m5stack.com/collections/m5-controllers/products/esp32-basic-core-lot-development-kit-v2-7)
 * [M5Stack Commu module \[M001\]](https://shop.m5stack.com/products/commu-module)
 * [XT30(2+2)-F](https://www.china-amass.com/product/contain/1Yf5h7G4u1927079)
-* [Unbuckled Grove Cable](https://shop.m5stack.com/products/4pin-buckled-grove-cable)
+* [Grove Cable](https://www.seeedstudio.com/Grove-Universal-4-Pin-Buckled-20cm-Cable-5-PCs-pack.html)
 
 ## H/W Connection
 
-![CyberGear_M5_Connection](docs/img/cybergear_m5_connection.png)
+![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/c36d82cf-e91a-45da-ac53-a79e8d8fc730)
+
+## How to use Official GUI tool
+
+This software requires a specific CAN to USB module.
+The official documentation recommends YourCee's USB to CAN module, which supports the serial protocol with a frame header of 41 54 and frame tail of 0D 0A, but this is not readily available, so we searched Aliexpress for an alternative.
+※ Note that this will not work for general modules.
+
+Tested(for reference):
+* [CAN to USB module](https://ja.aliexpress.com/item/1005004296661528.html)
+
+## Recommended pre-crimped cables
+
+* [XT30(2+2) Cable](https://ja.aliexpress.com/item/1005006046478152.html)
 
 ## How to run sample
 
