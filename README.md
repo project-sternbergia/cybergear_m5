@@ -31,6 +31,7 @@ M5 stack library for cybergear
 ```bash
 cd ~/Arduino/libraries
 git clone https://github.com/coryjfowler/MCP_CAN_lib.git
+git clone https://github.com/Locoduino/RingBuffer.git
 git clone https://github.com/project-sternbergia/cybergear_m5.git
 ```
 
@@ -39,7 +40,7 @@ git clone https://github.com/project-sternbergia/cybergear_m5.git
     ![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/8a4edd90-241c-4683-a13d-4a26685e8251)
 
     Put this file in the same folder as control_mode_example.ino (for Arduino IDE)
-  
+
 
 4. Build and write firmware to M5Stack
 
@@ -54,6 +55,8 @@ Check cybergear behaviour using M5 stack.
 * Left Button  - Decrease control value
 
 ![CyberGear_M5_Control_Mode](docs/img/cybergear_m5_sample_control_mode.gif)
+
+### control_mode_example.ino
 
 ## References
 
