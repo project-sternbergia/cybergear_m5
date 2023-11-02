@@ -69,6 +69,7 @@ void setup()
   driver.init(&CAN0);
   driver.init_motor(mode);
   driver.set_limit_speed(30.0f);
+  driver.enable_motor();
 
   // display current status
   draw_display(mode, true);
@@ -148,6 +149,7 @@ void loop()
   if(M5.BtnB.wasPressed()) {
     mode = (mode + 1) % MODE_CURRENT + 1;
     driver.init_motor(mode);
+    driver.enable_motor();
     target_pos = 0.0;
     target_vel = 0.0;
     target_torque = 0.0;

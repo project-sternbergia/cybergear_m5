@@ -33,6 +33,8 @@ void setup()
   // init cybergear driver
   init_can();
   driver.init(&CAN0);
+  driver.init_motor(MODE_POSITION);
+  driver.enable_motor();
   driver.change_motor_can_id(MOT_NEXT_CAN_ID);
 }
 

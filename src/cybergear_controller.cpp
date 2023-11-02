@@ -2,6 +2,7 @@
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
 #include <mcp_can.h>
+#include <M5Stack.h>
 
 CybergearController::CybergearController(uint8_t master_can_id)
   : can_(NULL)
@@ -24,6 +25,7 @@ bool CybergearController::init(const std::vector<uint8_t> ids, uint8_t mode, MCP
     driver.init(can_);
     driver.init_motor(mode);
     drivers_[ids[idx]] = driver;
+    motor_update_flag_[ids[idx]] = false;
   }
 
   return true;
@@ -82,6 +84,14 @@ bool CybergearController::set_current_control_param(uint8_t id, float kp, float 
   return true;
 }
 
+bool CybergearController::enable_motor(uint8_t id, uint8_t mode)
+{
+  if (!check_motor_id(id)) return false;
+  drivers_[id].init_motor(mode);
+  drivers_[id].enable_motor();
+  return true;
+}
+
 bool CybergearController::enable_motors()
 {
   for (uint8_t idx; idx < motor_ids_.size(); ++idx) {
@@ -90,7 +100,14 @@ bool CybergearController::enable_motors()
   return true;
 }
 
-bool CybergearController::disable_motors()
+bool CybergearController::reset_motor(uint8_t id)
+{
+  if (!check_motor_id(id)) return false;
+  drivers_[id].reset_motor();
+  return true;
+}
+
+bool CybergearController::reset_motors()
 {
   for (uint8_t idx; idx < motor_ids_.size(); ++idx) {
     drivers_[motor_ids_[idx]].reset_motor();
@@ -182,6 +199,13 @@ bool CybergearController::send_current_command(uint8_t id, float current)
   return true;
 }
 
+bool CybergearController::set_mech_position_to_zero(uint8_t id)
+{
+  if (!check_motor_id(id)) return false;
+  drivers_[id].set_mech_position_to_zero();
+  return true;
+}
+
 bool CybergearController::get_motor_status(std::vector<MotorStatus> & status)
 {
   for (uint8_t idx = 0; idx < motor_ids_.size(); ++idx) {
@@ -200,12 +224,15 @@ bool CybergearController::get_motor_status(uint8_t id, MotorStatus& status)
 
 bool CybergearController::process_can_packet()
 {
-  bool is_updated = true;
+  bool is_updated = false;
+
   while ( can_->checkReceive() == CAN_MSGAVAIL ) {
     // receive data
     unsigned long id;
     uint8_t len;
-    can_->readMsgBuf(&id, &len, receive_buffer_);
+    if (can_->readMsgBuf(&id, &len, receive_buffer_) == CAN_NOMSG) {
+      break;
+    }
 
     // if id is not mine
     uint8_t receive_can_id = id & 0xff;
@@ -219,10 +246,31 @@ bool CybergearController::process_can_packet()
     }
 
     // parse packet --------------
-    is_updated &= drivers_[motor_can_id].update_motor_status(id, receive_buffer_, len);
+    if (drivers_[motor_can_id].update_motor_status(id, receive_buffer_, len)) {
+      motor_update_flag_[motor_can_id] = true;
+      is_updated = true;
+    }
   }
 
   return is_updated;
+}
+
+bool CybergearController::check_update_flag(uint8_t id)
+{
+  if (!check_motor_id(id)) return false;
+  return motor_update_flag_[id];
+}
+
+bool CybergearController::reset_update_flag(uint8_t id)
+{
+  if (!check_motor_id(id)) return false;
+  motor_update_flag_[id] = false;
+  return true;
+}
+
+std::vector<uint8_t> CybergearController::motor_ids() const
+{
+  return motor_ids_;
 }
 
 bool CybergearController::check_motor_id(uint8_t id)
