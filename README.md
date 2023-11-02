@@ -56,7 +56,16 @@ Check cybergear behaviour using M5 stack.
 
 ![CyberGear_M5_Control_Mode](docs/img/cybergear_m5_sample_control_mode.gif)
 
-### control_mode_example.ino
+### cybergear_bilateral.ino
+
+This example use two cybergears for leader and follower.
+Before you test this example, please change cybergear can id as follows.
+After that write [cybergear_m5/examples/cybergear_bilateral.ino](https://github.com/project-sternbergia/cybergear_m5/blob/main/examples/cybergear_bilateral.ino) to m5 stack throughout Arduino IDE.
+
+* leader cybergear : 0x7F
+* follower cybergear : 0x7E
+
+![CyberGear_Bilateral](docs/img/cybergear_bilateral.gif)
 
 ## References
 
