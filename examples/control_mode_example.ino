@@ -54,6 +54,9 @@ float target_torque = 0.0;      //!< motor target torque
 float dir = 1.0f;               //!< direction for motion mode
 float default_kp = 50.0f;       //!< default kp for motion mode
 float default_kd = 1.0f;        //!< default kd for motion mode
+float init_speed = 30.0f;       //!< initial speed
+float slow_speed = 1.0f;        //!< slow speed
+bool state_change_flag = false; //!< state change flag
 
 void setup()
 {
@@ -68,7 +71,7 @@ void setup()
   init_can();
   driver.init(&CAN0);
   driver.init_motor(mode);
-  driver.set_limit_speed(30.0f);
+  driver.set_limit_speed(init_speed);
   driver.enable_motor();
 
   // display current status
@@ -148,6 +151,7 @@ void loop()
   // check mode change
   if(M5.BtnB.wasPressed()) {
     mode = (mode + 1) % MODE_CURRENT + 1;
+    state_change_flag = true;
     driver.init_motor(mode);
     driver.enable_motor();
     target_pos = 0.0;
@@ -181,6 +185,15 @@ void loop()
   }
 
   if (driver.get_run_mode() == MODE_POSITION) {
+    // set limit speed when state changed
+    if (state_change_flag) {
+      driver.set_limit_speed(slow_speed);
+      state_change_flag = false;
+    }
+    if (std::fabs(motor_status.position - target_pos) < 10.0 / 180.0 * M_PI) {
+      driver.set_limit_speed(init_speed);
+    }
+
     driver.set_position_ref(target_pos);
   }
   else if (driver.get_run_mode() == MODE_SPEED) {
