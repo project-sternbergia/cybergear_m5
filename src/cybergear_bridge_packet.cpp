@@ -37,7 +37,7 @@ bool RequestPacket::check_checksum() const
       check_sum = (check_sum + command_packet_[idx]) & 0xFF;
     }
     if (check_sum != command_packet_.back()) {
-      M5.Lcd.println("invalid command packet checksum");
+      // M5.Lcd.println("invalid command packet checksum");
       return false;
     }
   }
@@ -49,7 +49,7 @@ bool RequestPacket::check_checksum() const
       check_sum = (check_sum + data_packet_[idx]) & 0xFF;
     }
     if (check_sum != data_packet_.back()) {
-      M5.Lcd.println("invalid data packet checksum");
+      // M5.Lcd.println("invalid data packet checksum");
       return false;
     }
   }
@@ -60,17 +60,17 @@ bool RequestPacket::validate() const
 {
   // check header
   if (packet_header_ != Packet::Header) {
-    M5.Lcd.println("invalid header");
+    // M5.Lcd.println("invalid header");
     return false;
   }
 
   if (packet_type_ >= static_cast<uint8_t>(Type::_INVALID_TYPE_RANGE)) {
-    M5.Lcd.println("invalid packet type");
+    // M5.Lcd.println("invalid packet type");
     return false;
   }
 
   if (packet_data_size_ != data_packet_.size()) {
-    M5.Lcd.println("invalid data size");
+    // M5.Lcd.println("invalid data size");
     return false;
   }
   return check_checksum();
@@ -197,6 +197,8 @@ bool ControlMotionRequestPacket::unpack()
   memcpy(&ref_position_, data_packet().data() + 0, sizeof(float));
   memcpy(&ref_velocity_, data_packet().data() + 4, sizeof(float));
   memcpy(&ref_current_, data_packet().data() + 8, sizeof(float));
+  memcpy(&kp_, data_packet().data() + 12, sizeof(float));
+  memcpy(&kd_, data_packet().data() + 16, sizeof(float));
   return true;
 }
 

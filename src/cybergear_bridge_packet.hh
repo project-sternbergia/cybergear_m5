@@ -284,18 +284,22 @@ private:
 class ControlMotionRequestPacket : public RequestPacket
 {
 public:
-  static const int PacketSize = CommandPacketSize + 4 * 3 + 1;
+  static const int PacketSize = CommandPacketSize + 4 * 5 + 1;
   explicit ControlMotionRequestPacket(const ByteArray &packet);
   virtual ~ControlMotionRequestPacket();
   virtual bool unpack();
   float ref_position() const { return ref_position_; }
   float ref_velocity() const { return ref_velocity_; }
   float ref_current() const { return ref_current_; }
+  float kp() const { return kp_; }
+  float kd() const { return kd_; }
 
 private:
   float ref_position_;
   float ref_velocity_;
   float ref_current_;
+  float kp_;
+  float kd_;
 };
 
 /**

@@ -11,13 +11,26 @@
 
 typedef std::vector<uint8_t> ByteArray;
 
+/**
+ * @brief CybergearBridge for connnection with host-pc
+ */
 class CybergearBridge
 {
 public:
   CybergearBridge(CybergearController *controller, Stream *stream);
   virtual ~CybergearBridge();
 
+  /**
+   * @brief Process request command from host pc
+   *        This function process request and send can command to cybergear.
+   *        After call this function, call process_motor_response function to response pc requeset.
+   */
   void process_request_command();
+
+  /**
+   * @brief Process motor response
+   *        This function process can response and send process result to pc via Stream class.
+   */
   void process_motor_response();
 
 private:
@@ -32,6 +45,8 @@ private:
 
   // send motor status to pc
   void send_motor_status_response(uint8_t id, uint8_t seq);
+
+  // get next packet from buffer for host-pc request
   bool get_next_packet(ByteArray & request_packet);
 
   CybergearController *p_controller_;     //!< Controller object pointer
