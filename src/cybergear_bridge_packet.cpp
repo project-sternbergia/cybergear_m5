@@ -128,15 +128,47 @@ SetMechPosToZeroRequestPacket::SetMechPosToZeroRequestPacket(const ByteArray &pa
   : RequestPacket(static_cast<uint8_t>(Type::SetMechPosToZero), Packet::CommandPacketSize, packet)
 {}
 
-SetMechPosToZeroRequestPacket::~SetMechPosToZeroRequestPacket()
-{}
-
 bool SetMechPosToZeroRequestPacket::unpack()
 {
   if (!RequestPacket::unpack()) return false;
   return true;
 }
 
+// SetLimitSpeedRequestPacket
+SetLimitSpeedRequestPacket::SetLimitSpeedRequestPacket(const ByteArray &packet)
+  : RequestPacket(static_cast<uint8_t>(Type::SetLimitSpeed), PacketSize, packet)
+{}
+
+bool SetLimitSpeedRequestPacket::unpack()
+{
+  if (!RequestPacket::unpack()) return false;
+  memcpy(&limit_speed_ , data_packet().data(), sizeof(float));
+  return true;
+}
+
+// SetLimitCurrentRequestPacket
+SetLimitCurrentRequestPacket::SetLimitCurrentRequestPacket(const ByteArray &packet)
+  : RequestPacket(static_cast<uint8_t>(Type::SetLimitCurrent), PacketSize, packet)
+{}
+
+bool SetLimitCurrentRequestPacket::unpack()
+{
+  if (!RequestPacket::unpack()) return false;
+  memcpy(&limit_current_ , data_packet().data(), sizeof(float));
+  return true;
+}
+
+// SetLimitTorqueRequestPacket
+SetLimitTorqueRequestPacket::SetLimitTorqueRequestPacket(const ByteArray &packet)
+  : RequestPacket(static_cast<uint8_t>(Type::SetLimitTorque), PacketSize, packet)
+{}
+
+bool SetLimitTorqueRequestPacket::unpack()
+{
+  if (!RequestPacket::unpack()) return false;
+  memcpy(&limit_torque_ , data_packet().data(), sizeof(float));
+  return true;
+}
 
 // ControlPositionRequestPacket
 ControlPositionRequestPacket::ControlPositionRequestPacket(const ByteArray &packet)

@@ -69,14 +69,19 @@ public:
   enum class Type
   {
     Enable = 0,           //!< enable request packet type
-    Reset,                //!< reset request packet type (not implemented)
-    GetMotorIdList,       //!< get motor id list packet type (not implemented)
-    GetControlMode,       //!< get control mode packet type (not implemented)
-    ControlMotion,        //!< control motion request packet type (not implemented)
-    ControlSpeed,         //!< control speed request packet type (not implemented)
-    ControlPosition,      //!< control position request packet type (not implemented)
+    Reset,                //!< reset request packet type
+    // GetMotorIdList,    //!< get motor id list packet type (not implemented)
+    // GetControlMode,    //!< get control mode packet type (not implemented)
+    ControlMotion,        //!< control motion request packet type
+    ControlSpeed,         //!< control speed request packet type
+    ControlPosition,      //!< control position request packet type
     ControlCurrent,       //!< control current request packet type
     SetMechPosToZero,     //!< set current mechanical encoder position to zero
+    // GetMotorParameter,
+    SetLimitSpeed,        //!< set limit speed
+    SetLimitCurrent,      //!< set limit current
+    SetLimitTorque,       //!< set limit torque
+    // SetCurrentParameter,
     _INVALID_TYPE_RANGE
   };
 
@@ -199,26 +204,52 @@ public:
 class SetMechPosToZeroRequestPacket : public RequestPacket
 {
 public:
-  /**
-   * @brief Construct a new Reset Request Packet object
-   *
-   * @param packet data packet
-   */
   explicit SetMechPosToZeroRequestPacket(const ByteArray &packet);
-
-  /**
-   * @brief Destroy the Reset Request Packet object
-   */
-  virtual ~SetMechPosToZeroRequestPacket();
-
-  /**
-   * @brief Unpack raw ResetRequestPacket
-   *
-   * @return true   OK
-   * @return false  NG
-   */
+  virtual ~SetMechPosToZeroRequestPacket() {}
   virtual bool unpack();
 };
+
+class SetLimitSpeedRequestPacket : public RequestPacket
+{
+public:
+  static const int PacketSize = CommandPacketSize + 5;
+  explicit SetLimitSpeedRequestPacket(const ByteArray &packet);
+  virtual ~SetLimitSpeedRequestPacket() {}
+  virtual bool unpack();
+  float limit_speed() const { return limit_speed_; }
+
+private:
+  float limit_speed_;
+};
+
+
+class SetLimitCurrentRequestPacket : public RequestPacket
+{
+public:
+  static const int PacketSize = CommandPacketSize + 5;
+  explicit SetLimitCurrentRequestPacket(const ByteArray &packet);
+  virtual ~SetLimitCurrentRequestPacket() {}
+  virtual bool unpack();
+  float limit_current() const { return limit_current_; }
+
+private:
+  float limit_current_;
+};
+
+
+class SetLimitTorqueRequestPacket : public RequestPacket
+{
+public:
+  static const int PacketSize = CommandPacketSize + 5;
+  explicit SetLimitTorqueRequestPacket(const ByteArray &packet);
+  virtual ~SetLimitTorqueRequestPacket() {}
+  virtual bool unpack();
+  float limit_torque() const { return limit_torque_; }
+
+private:
+  float limit_torque_;
+};
+
 
 /**
  * @brief ControlPositionRequestPacket

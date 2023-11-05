@@ -42,6 +42,9 @@ private:
   void process_current_control_request(const ByteArray& request_packet);
   void process_motion_control_request(const ByteArray& request_packet);
   void process_set_mech_position_to_zero_request(const ByteArray& request_packet);
+  void process_set_limit_speed(const ByteArray& request_packet);
+  void process_set_limit_current(const ByteArray& request_packet);
+  void process_set_limit_torque(const ByteArray& request_packet);
 
   // send motor status to pc
   void send_motor_status_response(uint8_t id, uint8_t seq);
