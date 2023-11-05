@@ -40,6 +40,15 @@ void CybergearBridge::process_request_command()
 
     } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetMechPosToZero)) {
       process_set_mech_position_to_zero_request(request_packet);
+
+    } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetLimitSpeed)) {
+      process_set_limit_speed(request_packet);
+
+    } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetLimitCurrent)) {
+      process_set_limit_current(request_packet);
+
+    } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetLimitTorque)) {
+      process_set_limit_torque(request_packet);
     }
   }
 }
@@ -62,7 +71,6 @@ void CybergearBridge::process_enable_motor_request(const ByteArray& request_pack
   if (request.unpack()) {
     p_controller_->enable_motor(request.id(), request.control_mode());
     p_controller_->process_can_packet();
-    // send_motor_status_response(request.id(), request.command_packet_sequence());
   }
 }
 
@@ -72,7 +80,6 @@ void CybergearBridge::process_reset_motor_request(const ByteArray& request_packe
   if (request.unpack()) {
     p_controller_->reset_motor(request.id());
     p_controller_->process_can_packet();
-    // send_motor_status_response(request.id(), request.command_packet_sequence());
   }
 }
 
@@ -82,7 +89,6 @@ void CybergearBridge::process_position_control_request(const ByteArray& request_
   if (request.unpack()) {
     p_controller_->send_position_command(request.id(), request.ref_position());
     p_controller_->process_can_packet();
-    // send_motor_status_response(request.id(), request.command_packet_sequence());
   }
 }
 
@@ -91,8 +97,7 @@ void CybergearBridge::process_speed_control_request(const ByteArray& request_pac
   ControlSpeedRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->send_current_command(request.id(), request.ref_speed());
-    // p_controller_->process_can_packet();
-    send_motor_status_response(request.id(), request.command_packet_sequence());
+    p_controller_->process_can_packet();
   }
 }
 
@@ -101,8 +106,7 @@ void CybergearBridge::process_current_control_request(const ByteArray& request_p
   ControlCurrentRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->send_current_command(request.id(), request.ref_current());
-    // p_controller_->process_can_packet();
-    send_motor_status_response(request.id(), request.command_packet_sequence());
+    p_controller_->process_can_packet();
   }
 }
 
@@ -114,11 +118,10 @@ void CybergearBridge::process_motion_control_request(const ByteArray& request_pa
     cmd.position = request.ref_position();
     cmd.velocity = request.ref_velocity();
     cmd.effort = request.ref_current();
-    cmd.kp = 10.0;  // TODO use default value
-    cmd.kd = 1.0;   // TODO use default value
+    cmd.kp = request.kp();
+    cmd.kd = request.kd();
     p_controller_->send_motion_command(request.id(), cmd);
     p_controller_->process_can_packet();
-    send_motor_status_response(request.id(), request.command_packet_sequence());
   }
 }
 
@@ -128,7 +131,33 @@ void CybergearBridge::process_set_mech_position_to_zero_request(const ByteArray&
   if (request.unpack()) {
     p_controller_->set_mech_position_to_zero(request.id());
     p_controller_->process_can_packet();
-    send_motor_status_response(request.id(), request.command_packet_sequence());
+  }
+}
+
+void CybergearBridge::process_set_limit_speed(const ByteArray& request_packet)
+{
+  SetLimitSpeedRequestPacket request(request_packet);
+  if (request.unpack()) {
+    p_controller_->set_speed_limit(request.id(), request.limit_speed());
+    p_controller_->process_can_packet();
+  }
+}
+
+void CybergearBridge::process_set_limit_current(const ByteArray& request_packet)
+{
+  SetLimitCurrentRequestPacket request(request_packet);
+  if (request.unpack()) {
+    p_controller_->set_current_limit(request.id(), request.limit_current());
+    p_controller_->process_can_packet();
+  }
+}
+
+void CybergearBridge::process_set_limit_torque(const ByteArray& request_packet)
+{
+  SetLimitTorqueRequestPacket request(request_packet);
+  if (request.unpack()) {
+    p_controller_->set_torque_limit(request.id(), request.limit_torque());
+    p_controller_->process_can_packet();
   }
 }
 
@@ -180,4 +209,3 @@ bool CybergearBridge::get_next_packet(ByteArray & request_packet)
 
   return true;
 }
-
