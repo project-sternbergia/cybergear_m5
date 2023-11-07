@@ -101,6 +101,21 @@ void CybergearDriver::set_limit_torque(float torque)
   write_float_data(target_can_id_, ADDR_LIMIT_TORQUE, torque, 0.0f, T_MAX);
 }
 
+void CybergearDriver::set_position_kp(float kp)
+{
+  write_float_data(target_can_id_, ADDR_LOC_KP, kp, 0.0f, 200.0f);
+}
+
+void CybergearDriver::set_velocity_kp(float kp)
+{
+  write_float_data(target_can_id_, ADDR_SPD_KP, kp, 0.0f, 200.0f);
+}
+
+void CybergearDriver::set_velocity_ki(float ki)
+{
+  write_float_data(target_can_id_, ADDR_SPD_KI, ki, 0.0f, 200.0f);
+}
+
 void CybergearDriver::set_position_ref(float position)
 {
   write_float_data(target_can_id_, ADDR_LOC_REF, position, P_MIN, P_MAX);

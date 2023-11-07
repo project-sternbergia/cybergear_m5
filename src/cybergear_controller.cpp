@@ -75,6 +75,21 @@ bool CybergearController::set_current_limit(uint8_t id, float limit)
   return true;
 }
 
+bool CybergearController::set_position_control_gain(uint8_t id, float kp)
+{
+  if (!check_motor_id(id)) return false;
+  drivers_[id].set_position_kp(kp);
+  return true;
+}
+
+bool CybergearController::set_velocity_control_gain(uint8_t id, float kp, float ki)
+{
+  if (!check_motor_id(id)) return false;
+  drivers_[id].set_velocity_kp(kp);
+  drivers_[id].set_velocity_ki(ki);
+  return true;
+}
+
 bool CybergearController::set_current_control_param(uint8_t id, float kp, float ki, float gain)
 {
   if (!check_motor_id(id)) return false;

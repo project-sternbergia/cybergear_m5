@@ -11,6 +11,9 @@
 #define CMD_RAM_WRITE                   18
 #define CMD_GET_MOTOR_FAIL              21
 
+#define ADDR_SPD_KP                0x2014
+#define ADDR_SPD_KI                0x2015
+#define ADDR_LOC_KP                0x2016
 #define ADDR_RUN_MODE              0x7005
 #define ADDR_IQ_REF                0x7006
 #define ADDR_SPEED_REF             0x700A
@@ -45,6 +48,12 @@
 #define DEFAULT_CURRENT_KP           0.125f
 #define DEFAULT_CURRENT_KI           0.0158f
 #define DEFAULT_CURRENT_FINTER_GAIN  0.1f
+#define DEFAULT_POSITION_KP          30.0f
+#define DEFAULT_VELOCITY_KP          2.0f
+#define DEFAULT_VELOCITY_KI          0.021f
+#define DEFAULT_VELOCITY_LIMIT       2.0f
+#define DEFAULT_CURRENT_LIMIT        27.0f
+#define DEFAULT_TORQUE_LIMIT         12.0f
 
 #define RET_CYBERGEAR_OK              0x00
 #define RET_CYBERGEAR_MSG_NOT_AVAIL   0x01

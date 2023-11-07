@@ -170,6 +170,31 @@ bool SetLimitTorqueRequestPacket::unpack()
   return true;
 }
 
+// SetPositionControlGainRequestPacket
+SetPositionControlGainRequestPacket::SetPositionControlGainRequestPacket(const ByteArray &packet)
+  : RequestPacket(static_cast<uint8_t>(Type::SetPositionControlGain), PacketSize, packet)
+{}
+
+bool SetPositionControlGainRequestPacket::unpack()
+{
+  if (!RequestPacket::unpack()) return false;
+  memcpy(&kp_, data_packet().data(), sizeof(float));
+  return true;
+}
+
+// SetVelocityControlGainRequestPacket
+SetVelocityControlGainRequestPacket::SetVelocityControlGainRequestPacket(const ByteArray &packet)
+  : RequestPacket(static_cast<uint8_t>(Type::SetVelocityControlGain), PacketSize, packet)
+{}
+
+bool SetVelocityControlGainRequestPacket::unpack()
+{
+  if (!RequestPacket::unpack()) return false;
+  memcpy(&kp_, data_packet().data() + 0, sizeof(float));
+  memcpy(&ki_, data_packet().data() + 4, sizeof(float));
+  return true;
+}
+
 // ControlPositionRequestPacket
 ControlPositionRequestPacket::ControlPositionRequestPacket(const ByteArray &packet)
   : RequestPacket(static_cast<uint8_t>(Type::ControlPosition), PacketSize, packet)

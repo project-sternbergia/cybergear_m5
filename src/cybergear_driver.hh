@@ -130,6 +130,10 @@ public:
    */
   void set_limit_torque(float torque);
 
+  void set_position_kp(float kp);
+  void set_velocity_kp(float kp);
+  void set_velocity_ki(float ki);
+
   /**
    * @brief Set position reference for position control mode
    *
