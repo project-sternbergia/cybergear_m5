@@ -81,6 +81,8 @@ public:
     SetLimitSpeed,        //!< set limit speed
     SetLimitCurrent,      //!< set limit current
     SetLimitTorque,       //!< set limit torque
+    SetPositionControlGain, //!< set position control gain
+    SetVelocityControlGain, //!< set velocity control gain
     // SetCurrentParameter,
     _INVALID_TYPE_RANGE
   };
@@ -248,6 +250,36 @@ public:
 
 private:
   float limit_torque_;
+};
+
+
+class SetPositionControlGainRequestPacket : public RequestPacket
+{
+public:
+  static const int PacketSize = CommandPacketSize + 4 + 1;
+  explicit SetPositionControlGainRequestPacket(const ByteArray &packet);
+  virtual ~SetPositionControlGainRequestPacket() {}
+  virtual bool unpack();
+  float kp() const { return kp_; }
+
+private:
+  float kp_;
+};
+
+
+class SetVelocityControlGainRequestPacket : public RequestPacket
+{
+public:
+  static const int PacketSize = CommandPacketSize + 8 + 1;
+  explicit SetVelocityControlGainRequestPacket(const ByteArray &packet);
+  virtual ~SetVelocityControlGainRequestPacket() {}
+  virtual bool unpack();
+  float kp() const { return kp_; }
+  float ki() const { return ki_; }
+
+private:
+  float kp_;
+  float ki_;
 };
 
 

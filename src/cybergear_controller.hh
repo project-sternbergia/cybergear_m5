@@ -86,6 +86,8 @@ public:
   bool set_speed_limit(uint8_t id, float limit);
   bool set_torque_limit(uint8_t id, float limit);
   bool set_current_limit(uint8_t id, float limit);
+  bool set_position_control_gain(uint8_t id, float kp);
+  bool set_velocity_control_gain(uint8_t id, float kp, float ki);
   bool set_current_control_param(uint8_t id, float kp, float ki, float gain);
 
   /**

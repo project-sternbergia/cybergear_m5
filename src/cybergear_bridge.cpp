@@ -49,6 +49,12 @@ void CybergearBridge::process_request_command()
 
     } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetLimitTorque)) {
       process_set_limit_torque(request_packet);
+
+    } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetPositionControlGain)) {
+      process_set_position_control_gain(request_packet);
+
+    } else if (packet_type == static_cast<uint8_t>(RequestPacket::Type::SetVelocityControlGain)) {
+      process_set_velocity_control_gain(request_packet);
     }
   }
 }
@@ -157,6 +163,24 @@ void CybergearBridge::process_set_limit_torque(const ByteArray& request_packet)
   SetLimitTorqueRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_torque_limit(request.id(), request.limit_torque());
+    p_controller_->process_can_packet();
+  }
+}
+
+void CybergearBridge::process_set_position_control_gain(const ByteArray& request_packet)
+{
+  SetPositionControlGainRequestPacket request(request_packet);
+  if (request.unpack()) {
+    p_controller_->set_position_control_gain(request.id(), request.kp());
+    p_controller_->process_can_packet();
+  }
+}
+
+void CybergearBridge::process_set_velocity_control_gain(const ByteArray& request_packet)
+{
+  SetVelocityControlGainRequestPacket request(request_packet);
+  if (request.unpack()) {
+    p_controller_->set_velocity_control_gain(request.id(), request.kp(), request.ki());
     p_controller_->process_can_packet();
   }
 }
