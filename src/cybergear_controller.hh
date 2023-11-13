@@ -237,6 +237,9 @@ public:
   bool reset_update_flag(uint8_t id);
   std::vector<uint8_t> motor_ids() const;
 
+  unsigned long send_count() const;
+  unsigned long recv_count() const { return recv_count_; }
+
 private:
   typedef std::unordered_map<uint8_t, CybergearDriver> CybergearDriverMap;
   typedef std::unordered_map<uint8_t, CybergearConfig> CybergearConfigMap;
@@ -252,6 +255,7 @@ private:
   MCP_CAN *can_;
   uint8_t master_can_id_;
   uint8_t receive_buffer_[64];
+  unsigned long recv_count_;
 };
 
 #endif // !CYBER_GEAR_CONTROLLER_HH

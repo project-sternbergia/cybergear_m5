@@ -30,13 +30,19 @@ CybergearBridge bridge = CybergearBridge(&controller, &Serial);
 
 void setup()
 {
-  M5.begin();
+  M5.begin(true,true,false);
+  Serial.begin(2000000);
+  Serial.flush();
+
   M5.Lcd.fillScreen(WHITE);
   M5.Lcd.drawBitmap((M5.Lcd.width() - imgWidth)/2, (M5.Lcd.height() - imgHeight)/2, imgWidth, imgHeight, (uint16_t *)img);
 
   // init cybergear driver
   init_can();
   controller.init(motor_ids, MODE_CURRENT, &CAN0);
+
+  delay(1000);
+  M5.Lcd.fillScreen(BLACK);
 }
 
 void loop()

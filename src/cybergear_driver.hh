@@ -215,6 +215,8 @@ public:
    */
   MotorStatus get_motor_status() const;
 
+  unsigned long send_count() const { return send_count_; }
+
 private:
   /**
    * @brief Write float data to target motor
@@ -269,6 +271,7 @@ private:
   uint8_t run_mode_;            //!< run mode
   uint8_t receive_buffer_[64];  //!< receive buffer
   MotorStatus motor_status_;    //!< current motor status
+  unsigned long send_count_;
 };
 
 #endif // !CYBER_GEAR_DRIVER_H
