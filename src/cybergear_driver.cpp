@@ -8,6 +8,7 @@ CybergearDriver::CybergearDriver()
   , master_can_id_(0)
   , target_can_id_(0)
   , run_mode_(MODE_MOTION)
+  , send_count_(0)
 {}
 
 CybergearDriver::CybergearDriver(uint8_t master_can_id, uint8_t target_can_id)
@@ -15,6 +16,7 @@ CybergearDriver::CybergearDriver(uint8_t master_can_id, uint8_t target_can_id)
   , master_can_id_(master_can_id)
   , target_can_id_(target_can_id)
   , run_mode_(MODE_MOTION)
+  , send_count_(0)
 {}
 
 CybergearDriver::~CybergearDriver()
@@ -244,6 +246,7 @@ void CybergearDriver::send_command(uint8_t can_id, uint8_t cmd_id, uint16_t opti
 {
   uint32_t id = 0x80000000 | cmd_id << 24 | option << 8 | can_id;
   can_->sendMsgBuf(id, len, data);
+  ++send_count_;
   // print_can_packet(id, data, len);
 }
 

@@ -7,6 +7,7 @@
 CybergearController::CybergearController(uint8_t master_can_id)
   : can_(NULL)
   , master_can_id_(master_can_id)
+  , recv_count_(0)
 {}
 
 CybergearController::~CybergearController()
@@ -223,7 +224,9 @@ bool CybergearController::set_mech_position_to_zero(uint8_t id)
 
 bool CybergearController::get_motor_status(std::vector<MotorStatus> & status)
 {
+  status.clear();
   for (uint8_t idx = 0; idx < motor_ids_.size(); ++idx) {
+    if (drivers_.find(motor_ids_[idx]) == drivers_.end()) return false;
     MotorStatus mot = drivers_[motor_ids_[idx]].get_motor_status();
     status.push_back(mot);
   }
@@ -264,6 +267,7 @@ bool CybergearController::process_can_packet()
     if (drivers_[motor_can_id].update_motor_status(id, receive_buffer_, len)) {
       motor_update_flag_[motor_can_id] = true;
       is_updated = true;
+      recv_count_++;
     }
   }
 
@@ -295,4 +299,13 @@ bool CybergearController::check_motor_id(uint8_t id)
     return false;
   }
   return true;
+}
+
+unsigned long CybergearController::send_count() const
+{
+  unsigned long cnt = 0;
+  for (uint8_t idx = 0; idx < motor_ids_.size(); ++idx) {
+    cnt += drivers_.at(motor_ids_.at(idx)).send_count();
+  }
+  return cnt;
 }
