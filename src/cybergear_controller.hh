@@ -8,19 +8,71 @@
 #include <unordered_map>
 #include <mcp_can.h>
 #include <vector>
+#include <cmath>
 
 /**
- * @brief Cybergear config struct for initializing
+ * @brief Cybergear config for hardware limit
  */
-struct CybergearConfig
+struct CybergearHardwareConfig
 {
+  CybergearHardwareConfig() :
+    id (0xFF),
+    limit_speed(2.0f),
+    limit_current(27.0f),
+    limit_torque(12.0f),
+    current_kp(0.025f),
+    current_ki(0.0258f),
+    current_filter_gain(0.1f)
+  {}
+
   uint8_t id;                   //!< motor id
+  int8_t direciton;             //!< motor direction (-1: ccw / 1: cw)
   float limit_speed;            //!< limit speed (rad/s)
   float limit_current;          //!< limit current (A)
   float limit_torque;           //!< limit torque (Nm)
   float current_kp;             //!< control parameter kp for current control
   float current_ki;             //!< control parameter ki for current control
   float current_filter_gain;    //!< current filter gain
+};
+
+/**
+ * @brief Cybergear config for software limit
+ */
+struct CybergearSoftwareConfig
+{
+  CybergearSoftwareConfig() :
+    id (0xFF),
+    direction(CW),
+    limit_speed(30.0f),
+    limit_current(27.0f),
+    limit_torque(12.0f),
+    upper_position_limit(4.0 * M_PI),
+    lower_position_limit(-4.0 * M_PI),
+    calib_direction(CW),
+    position_offset(0.0f)
+  {}
+
+  CybergearSoftwareConfig(uint8_t id, int8_t dir, float limit_speed, float limit_current, float limit_torque, float upper_position_limit, float lower_position_limit, int8_t calib_direction, float position_offset) :
+    id(id),
+    direction(dir),
+    limit_speed(limit_speed),
+    limit_current(limit_current),
+    limit_torque(limit_torque),
+    upper_position_limit(upper_position_limit),
+    lower_position_limit(lower_position_limit),
+    calib_direction(calib_direction),
+    position_offset(position_offset)
+  {}
+
+  uint8_t id;                   //!< motor id
+  int8_t direction;             //!< motor direction
+  float limit_speed;            //!< limit speed (rad/s)
+  float limit_current;          //!< limit current (Aa)
+  float limit_torque;           //!< limit torque (Nm)
+  float upper_position_limit;   //!< motor upper limit [rad]
+  float lower_position_limit;   //!< motor lower limit [rad]
+  int8_t calib_direction;       //!< calibration direction
+  float position_offset;        //!< motor offset [rad]
 };
 
 /**
@@ -62,7 +114,48 @@ public:
    * @return true   succeeded to init this class
    * @return false  failed to init this class
    */
-  bool init(const std::vector<uint8_t> ids, uint8_t mode, MCP_CAN* can);
+  bool init(const std::vector<uint8_t> & ids, uint8_t mode, MCP_CAN* can);
+
+  /**
+   * @brief Init cybergear controller class
+
+   * @param ids           motor ids
+   * @param sw_configs    motor software config (e.g speed_limit, current_limit, position_limit, offset, etc)
+   * @param mode          control mode (motion, position, speed or current)
+   * @param can           can control class
+   * @return true         succeeded to init this class
+   * @return false        failed to init this class
+   */
+  bool init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, MCP_CAN* can);
+
+  /**
+   * @brief Set the run mode
+   *
+   * @param ids     motor ids
+   * @param modes   run mode
+   * @return true   succeeded to init this class
+   * @return false  failed to init this class
+   */
+  bool set_run_mode(const std::vector<uint8_t> & ids, const std::vector<uint8_t> modes);
+
+  /**
+   * @brief Set the run mode object
+   *
+   * @param mode    motor id
+   * @return true   succeeded to init this class
+   * @return false  failed to init this class
+   */
+  bool set_run_mode(uint8_t mode);
+
+  /**
+   * @brief Set the run mode object
+   *
+   * @param ids     motor ids
+   * @param modes   run mode
+   * @return true   succeeded to init this class
+   * @return false  failed to init this class
+   */
+  bool set_run_mode(uint8_t id, uint8_t mode);
 
   /**
    * @brief Set cybergear motor configs
@@ -71,7 +164,7 @@ public:
    * @return true     success to send
    * @return false    failed to send
    */
-  bool set_motor_config(const std::vector<CybergearConfig>& configs);
+  bool set_motor_config(const std::vector<CybergearHardwareConfig>& configs);
 
   /**
    * @brief Set cybergear motor config
@@ -80,9 +173,9 @@ public:
    * @return true     success to send
    * @return false    failed to send
    */
-  bool set_motor_config(const CybergearConfig& config);
+  bool set_motor_config(const CybergearHardwareConfig& config);
 
-  // set motor config
+  // set motor config for cybergear can apis
   bool set_speed_limit(uint8_t id, float limit);
   bool set_torque_limit(uint8_t id, float limit);
   bool set_current_limit(uint8_t id, float limit);
@@ -91,7 +184,7 @@ public:
   bool set_current_control_param(uint8_t id, float kp, float ki, float gain);
 
   /**
-   * @brief enable motors
+   * @bref MotorStatus enable motors
    *
    * @return true   success
    * @return false  failed
@@ -204,6 +297,13 @@ public:
    */
   bool send_current_command(uint8_t id, float current);
 
+  /**
+   * @brief Set current mech position to zero (cybergear api)
+   *
+   * @param id        target motor id
+   * @return true     success to set (if you want to check execution result, please check packet data)
+   * @return false    failed to set (if you want to check execution result, please check packet data)
+   */
   bool set_mech_position_to_zero(uint8_t id);
 
   /**
@@ -226,6 +326,16 @@ public:
   bool get_motor_status(uint8_t id, MotorStatus& status);
 
   /**
+   * @brief Get the software config object
+   *
+   * @param id       target motor id
+   * @param config   motor config
+   * @return true
+   * @return false
+   */
+  bool get_software_config(uint8_t id, CybergearSoftwareConfig& config);
+
+  /**
    * @brief Process can packet
    *
    * @return true   success to update data
@@ -242,14 +352,16 @@ public:
 
 private:
   typedef std::unordered_map<uint8_t, CybergearDriver> CybergearDriverMap;
-  typedef std::unordered_map<uint8_t, CybergearConfig> CybergearConfigMap;
+  typedef std::unordered_map<uint8_t, CybergearHardwareConfig> CybergearHardwareConfigMap;
+  typedef std::unordered_map<uint8_t, CybergearSoftwareConfig> CybergearSoftwareConfigMap;
 
   bool check_motor_id(uint8_t id);
 
   std::vector<uint8_t> motor_ids_;
   std::unordered_map<uint8_t, bool> motor_update_flag_;
   CybergearDriverMap drivers_;
-  CybergearConfigMap configs_;
+  CybergearHardwareConfigMap hw_configs_;
+  CybergearSoftwareConfigMap sw_configs_;
   uint8_t control_mode_;
 
   MCP_CAN *can_;
