@@ -102,7 +102,7 @@ void CybergearBridge::process_speed_control_request(const ByteArray& request_pac
 {
   ControlSpeedRequestPacket request(request_packet);
   if (request.unpack()) {
-    p_controller_->send_current_command(request.id(), request.ref_speed());
+    p_controller_->send_speed_command(request.id(), request.ref_speed());
     p_controller_->process_can_packet();
   }
 }
