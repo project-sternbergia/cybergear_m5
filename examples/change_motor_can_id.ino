@@ -25,16 +25,13 @@ void setup()
 {
   M5.begin();
 
-  // init sprite
-  sprite.setColorDepth(8);
-  sprite.setTextSize(3);
-  sprite.createSprite(M5.Lcd.width(), M5.Lcd.height());
-
   // init cybergear driver
+  M5.Lcd.printf("Start change_motor_can_id\n");
+  M5.Lcd.printf("Change motor can id from [0x%02x] to [0x%02x]\n", MOT_CURRENT_CAN_ID, MOT_NEXT_CAN_ID);
+
   init_can();
   driver.init(&CAN0);
   driver.init_motor(MODE_POSITION);
-  driver.enable_motor();
   driver.change_motor_can_id(MOT_NEXT_CAN_ID);
 }
 
