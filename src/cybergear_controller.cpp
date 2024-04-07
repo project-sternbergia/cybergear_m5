@@ -1,6 +1,8 @@
 #include "cybergear_controller.hh"
+#include "cybergear_can_interface.hh"
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
+#include "cybergear_driver_utils.hh"
 #include <mcp_can.h>
 #include <cmath>
 
@@ -13,7 +15,7 @@ CybergearController::CybergearController(uint8_t master_can_id)
 CybergearController::~CybergearController()
 {}
 
-bool CybergearController::init(const std::vector<uint8_t> & ids, uint8_t mode, MCP_CAN* can)
+bool CybergearController::init(const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface* can)
 {
   std::vector<CybergearSoftwareConfig> configs;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
@@ -25,7 +27,7 @@ bool CybergearController::init(const std::vector<uint8_t> & ids, uint8_t mode, M
   return init(ids, configs, mode, can);
 }
 
-bool CybergearController::init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, MCP_CAN* can)
+bool CybergearController::init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, CybergearCanInterface* can)
 {
   if (ids.size() != sw_configs.size()) {
     return false;
@@ -199,9 +201,10 @@ bool CybergearController::send_motion_command(uint8_t id, const CybergearMotionC
 {
   if (!check_motor_id(id)) return false;
   float pos = std::max(std::min(cmd.position, sw_configs_[id].upper_position_limit), sw_configs_[id].lower_position_limit);
+  float cmd_pos = (pos - sw_configs_[id].position_offset) * sw_configs_[id].direction;
   float vel = std::max(std::min(sw_configs_[id].direction * cmd.velocity, sw_configs_[id].limit_speed), -sw_configs_[id].limit_speed);
   float eff = std::max(std::min(sw_configs_[id].direction * cmd.effort, sw_configs_[id].limit_torque), -sw_configs_[id].limit_torque);
-  drivers_[id].motor_control(pos, vel, eff, cmd.kp, cmd.kd);
+  drivers_[id].motor_control(cmd_pos, vel, eff, cmd.kp, cmd.kd);
   return true;
 }
 
@@ -302,21 +305,21 @@ bool CybergearController::get_software_config(uint8_t id, CybergearSoftwareConfi
   return true;
 }
 
-bool CybergearController::process_can_packet()
+bool CybergearController::process_packet()
 {
   bool is_updated = false;
-
-  while ( can_->checkReceive() == CAN_MSGAVAIL ) {
-    // receive data
+  while (can_->available())
+  {
     unsigned long id;
     uint8_t len;
-    if (can_->readMsgBuf(&id, &len, receive_buffer_) == CAN_NOMSG) {
-      break;
+    if (!can_->read_message(id, receive_buffer_, len)) {
+      continue;
     }
 
     // if id is not mine
     uint8_t receive_can_id = id & 0xff;
     if ( receive_can_id != master_can_id_ ) {
+      CG_DEBUG_PRINTF("Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_, receive_can_id, id);
       continue;
     }
 

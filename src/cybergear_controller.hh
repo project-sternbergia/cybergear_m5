@@ -1,12 +1,11 @@
 #ifndef CYBER_GEAR_CONTROLLER_HH
 #define CYBER_GEAR_CONTROLLER_HH
 
+#include "cybergear_can_interface.hh"
 #include "cybergear_driver.hh"
-
 #include <cstdint>
 #include <sys/types.h>
 #include <unordered_map>
-#include <mcp_can.h>
 #include <vector>
 #include <cmath>
 
@@ -114,7 +113,7 @@ public:
    * @return true   succeeded to init this class
    * @return false  failed to init this class
    */
-  bool init(const std::vector<uint8_t> & ids, uint8_t mode, MCP_CAN* can);
+  bool init(const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface* can);
 
   /**
    * @brief Init cybergear controller class
@@ -126,7 +125,7 @@ public:
    * @return true         succeeded to init this class
    * @return false        failed to init this class
    */
-  bool init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, MCP_CAN* can);
+  bool init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, CybergearCanInterface* can);
 
   /**
    * @brief Set the run mode
@@ -341,7 +340,7 @@ public:
    * @return true   success to update data
    * @return false  failed to update data
    */
-  bool process_can_packet();
+  bool process_packet();
 
   bool check_update_flag(uint8_t id);
   bool reset_update_flag(uint8_t id);
@@ -364,7 +363,7 @@ private:
   CybergearSoftwareConfigMap sw_configs_;
   uint8_t control_mode_;
 
-  MCP_CAN *can_;
+  CybergearCanInterface *can_;
   uint8_t master_can_id_;
   uint8_t receive_buffer_[64];
   unsigned long recv_count_;

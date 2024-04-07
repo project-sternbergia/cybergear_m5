@@ -1,5 +1,6 @@
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
+#include "cybergear_driver_utils.hh"
 #include <Arduino.h>
 #include <M5Stack.h>
 
@@ -22,7 +23,7 @@ CybergearDriver::CybergearDriver(uint8_t master_can_id, uint8_t target_can_id)
 CybergearDriver::~CybergearDriver()
 {}
 
-void CybergearDriver::init(MCP_CAN *can)
+void CybergearDriver::init(CybergearCanInterface *can)
 {
   can_ = can;
 }
@@ -164,7 +165,7 @@ uint8_t CybergearDriver::get_motor_id() const
   return target_can_id_;
 }
 
-bool CybergearDriver::process_can_packet()
+bool CybergearDriver::process_packet()
 {
   bool check_update = false;
   while (true) {
@@ -200,6 +201,7 @@ bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data
   motor_status_.raw_temperature = data[7] | data[6] << 8;
 
   // convert motor data
+  motor_status_.stamp_usec = micros();
   motor_status_.motor_id = motor_can_id;
   motor_status_.position = uint_to_float(motor_status_.raw_position, P_MIN, P_MAX);
   motor_status_.velocity = uint_to_float(motor_status_.raw_velocity, V_MIN, V_MAX);
@@ -244,32 +246,30 @@ float CybergearDriver::uint_to_float(uint16_t x, float x_min, float x_max)
 
 void CybergearDriver::send_command(uint8_t can_id, uint8_t cmd_id, uint16_t option, uint8_t len, uint8_t * data)
 {
-  uint32_t id = 0x80000000 | cmd_id << 24 | option << 8 | can_id;
-  can_->sendMsgBuf(id, len, data);
+  uint32_t id = cmd_id << 24 | option << 8 | can_id;
+  can_->send_message(id, data, len, true);
   ++send_count_;
-  // print_can_packet(id, data, len);
 }
 
 uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
 {
-  if (can_->checkReceive() != CAN_MSGAVAIL) {
-    return RET_CYBERGEAR_MSG_NOT_AVAIL;
-  }
-
   // receive data
   unsigned long id;
   uint8_t len;
-  can_->readMsgBuf(&id, &len, receive_buffer_);
-  // print_can_packet(id, receive_buffer_, len);
+  if (!can_->read_message(id, receive_buffer_, len)) {
+    return RET_CYBERGEAR_MSG_NOT_AVAIL;
+  }
 
   // if id is not mine
   uint8_t receive_can_id = id & 0xff;
   if ( receive_can_id != master_can_id_ ) {
+    CG_DEBUG_PRINTF("Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_, receive_can_id, id);
     return RET_CYBERGEAR_INVALID_CAN_ID;
   }
 
   uint8_t motor_can_id = (id & 0xff00) >> 8;
   if ( motor_can_id != target_can_id_ ) {
+    CG_DEBUG_PRINTF("Invalid target can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", target_can_id_, motor_can_id, id);
     return RET_CYBERGEAR_INVALID_CAN_ID;
   }
 
@@ -278,6 +278,7 @@ uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
   // check packet type
   uint8_t packet_type = (id & 0x3F000000) >> 24;
   if ( packet_type != CMD_RESPONSE ) {
+    CG_DEBUG_PRINLN("invalid command response");
     return RET_CYBERGEAR_INVALID_PACKET;
   }
 
@@ -287,6 +288,7 @@ uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
   mot.raw_temperature = receive_buffer_[7] | receive_buffer_[6] << 8;
 
   // convert motor data
+  mot.stamp_usec = micros();
   mot.motor_id = motor_can_id;
   mot.position = uint_to_float(mot.raw_position, P_MIN, P_MAX);
   mot.velocity = uint_to_float(mot.raw_velocity, V_MIN, V_MAX);

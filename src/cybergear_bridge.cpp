@@ -61,7 +61,7 @@ void CybergearBridge::process_request_command()
 
 void CybergearBridge::process_motor_response()
 {
-  p_controller_->process_can_packet();
+  p_controller_->process_packet();
   std::vector<uint8_t> ids = p_controller_->motor_ids();
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     if (p_controller_->check_update_flag(ids[idx])) {
@@ -76,7 +76,7 @@ void CybergearBridge::process_enable_motor_request(const ByteArray& request_pack
   EnableRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->enable_motor(request.id(), request.control_mode());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -85,7 +85,7 @@ void CybergearBridge::process_reset_motor_request(const ByteArray& request_packe
   ResetRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->reset_motor(request.id());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -94,7 +94,7 @@ void CybergearBridge::process_position_control_request(const ByteArray& request_
   ControlPositionRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->send_position_command(request.id(), request.ref_position());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -103,7 +103,7 @@ void CybergearBridge::process_speed_control_request(const ByteArray& request_pac
   ControlSpeedRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->send_speed_command(request.id(), request.ref_speed());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -112,7 +112,7 @@ void CybergearBridge::process_current_control_request(const ByteArray& request_p
   ControlCurrentRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->send_current_command(request.id(), request.ref_current());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -127,7 +127,7 @@ void CybergearBridge::process_motion_control_request(const ByteArray& request_pa
     cmd.kp = request.kp();
     cmd.kd = request.kd();
     p_controller_->send_motion_command(request.id(), cmd);
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -136,7 +136,7 @@ void CybergearBridge::process_set_mech_position_to_zero_request(const ByteArray&
   SetMechPosToZeroRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_mech_position_to_zero(request.id());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -145,7 +145,7 @@ void CybergearBridge::process_set_limit_speed(const ByteArray& request_packet)
   SetLimitSpeedRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_speed_limit(request.id(), request.limit_speed());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -154,7 +154,7 @@ void CybergearBridge::process_set_limit_current(const ByteArray& request_packet)
   SetLimitCurrentRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_current_limit(request.id(), request.limit_current());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -163,7 +163,7 @@ void CybergearBridge::process_set_limit_torque(const ByteArray& request_packet)
   SetLimitTorqueRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_torque_limit(request.id(), request.limit_torque());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -172,7 +172,7 @@ void CybergearBridge::process_set_position_control_gain(const ByteArray& request
   SetPositionControlGainRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_position_control_gain(request.id(), request.kp());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
@@ -181,7 +181,7 @@ void CybergearBridge::process_set_velocity_control_gain(const ByteArray& request
   SetVelocityControlGainRequestPacket request(request_packet);
   if (request.unpack()) {
     p_controller_->set_velocity_control_gain(request.id(), request.kp(), request.ki());
-    p_controller_->process_can_packet();
+    p_controller_->process_packet();
   }
 }
 
