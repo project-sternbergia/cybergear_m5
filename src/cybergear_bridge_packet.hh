@@ -83,7 +83,6 @@ public:
     SetLimitTorque,       //!< set limit torque
     SetPositionControlGain, //!< set position control gain
     SetVelocityControlGain, //!< set velocity control gain
-    // SetCurrentParameter,
     _INVALID_TYPE_RANGE
   };
 

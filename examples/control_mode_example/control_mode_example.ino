@@ -1,18 +1,17 @@
 #include <Arduino.h>
 #include <math.h>
-#include <mcp_can.h>
 #include <M5Stack.h>
 #include "cybergear_driver.hh"
+
+#ifdef USE_ESP32_CAN
+#include "cybergear_can_interface_esp32.hh"
+#else
+#include "cybergear_can_interface_mcp.hh"
+#endif
 
 #define INC_POSITION  20.0
 #define INC_VELOCITY  0.4
 #define INC_TORQUE    0.04
-
-
-/**
- * @brief Init can interface
- */
-void init_can();
 
 /**
  * @brief Draw display
@@ -31,18 +30,18 @@ void draw_display(uint8_t mode, bool is_mode_change = false);
  */
 void get_color_and_mode_str(uint8_t mode, uint16_t & color, String & mode_str);
 
-
-// init MCP_CAN object
-#define CAN0_INT 15  // Set INT to pin 2
-MCP_CAN CAN0(12);    // Set CS to pin 10
-
 // setup master can id and motor can id (default cybergear can id is 0x7F)
 uint8_t MASTER_CAN_ID = 0x00;
-uint8_t MOT_CAN_ID = 0x7F;
+uint8_t MOT_CAN_ID = 0x7E;
 
 // init cybergeardriver
 CybergearDriver driver = CybergearDriver(MASTER_CAN_ID, MOT_CAN_ID);
 MotorStatus motor_status;
+#ifdef USE_ESP32_CAN
+CybergearCanInterfaceEsp32 interface;
+#else
+CybergearCanInterfaceMcp interface;
+#endif
 
 // init sprite for display
 TFT_eSprite sprite = TFT_eSprite(&sprite);
@@ -68,8 +67,9 @@ void setup()
   sprite.createSprite(M5.Lcd.width(), M5.Lcd.height());
 
   // init cybergear driver
-  init_can();
-  driver.init(&CAN0);
+  interface.init(15, 5);
+  interface.init();
+  driver.init(&interface);
   driver.init_motor(mode);
   driver.set_limit_speed(init_speed);
   driver.enable_motor();
@@ -210,22 +210,10 @@ void loop()
   }
 
   // update and get motor data
-  if ( driver.process_can_packet() ) {
+  if ( driver.process_packet() ) {
     motor_status = driver.get_motor_status();
     draw_display(mode);
   }
 
   delay(200);
-}
-
-void init_can()
-{
-  if (CAN0.begin(MCP_ANY, CAN_1000KBPS, MCP_8MHZ) == CAN_OK) {
-      sprite.printf("MCP2515 Initialized Successfully!\n");
-
-  } else {
-      sprite.printf("Error Initializing MCP2515...");
-  }
-  CAN0.setMode(MCP_NORMAL);  // Set operation mode to normal so the MCP2515 sends acks to received data.
-  pinMode(CAN0_INT, INPUT);  // Configuring pin for /INT input
 }

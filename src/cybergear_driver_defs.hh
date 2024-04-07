@@ -60,5 +60,7 @@
 #define RET_CYBERGEAR_INVALID_CAN_ID  0x02
 #define RET_CYBERGEAR_INVALID_PACKET  0x03
 
+#define CW      1
+#define CCW     -1
 
 #endif // !CYBER_GEAR_DRIVER_DEFS_H

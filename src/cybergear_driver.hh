@@ -2,14 +2,14 @@
 #define CYBER_GEAR_DRIVER_H
 
 #include "cybergear_driver_defs.hh"
-#include "mcp_can.h"
-
+#include "cybergear_can_interface.hh"
 
 /**
  * @brief MotorStatus class
  */
 struct MotorStatus
 {
+  unsigned long stamp_usec;     //< timestamp
   uint8_t motor_id;             //!< motor id
   float position;               //!< encoder position (-4pi to 4pi)
   float velocity;               //!< motor velocity (-30rad/s to 30rad/s)
@@ -46,9 +46,9 @@ public:
   /**
    * @brief Init this class
    *
-   * @param MCP_CAN mcp_can object for can communication
+   * @param ican CybergearCanInterface object for communication
    */
-  void init(MCP_CAN *can);
+  void init(CybergearCanInterface *ican);
 
   /**
    * @brief Init motor
@@ -195,7 +195,7 @@ public:
    * @return true   motor status updated
    * @return false  motor status not updated
    */
-  bool process_can_packet();
+  bool process_packet();
 
   /**
    * @brief Update motor status from buffer
@@ -265,7 +265,7 @@ private:
   void print_can_packet(uint32_t id, uint8_t *data, uint8_t len);
 
 
-  MCP_CAN* can_;                //!< can connection instance
+  CybergearCanInterface *can_;  //!< can connection instance
   uint8_t master_can_id_;       //!< master can id
   uint8_t target_can_id_;       //!< target can id
   uint8_t run_mode_;            //!< run mode
