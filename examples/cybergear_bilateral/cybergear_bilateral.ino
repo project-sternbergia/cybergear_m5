@@ -1,17 +1,12 @@
 #include <Arduino.h>
-#include <math.h>
-#include <mcp_can.h>
 #include <M5Stack.h>
+#include <math.h>
 #include "cybergear_controller.hh"
-
-/**
- * @brief Init can interface
- */
-void init_can();
-
-// init MCP_CAN object
-#define CAN0_INT 15  // Set INT to pin 2
-MCP_CAN CAN0(12);    // Set CS to pin 10
+#ifdef USE_ESP32_CAN
+#include "cybergear_can_interface_esp32.hh"
+#else
+#include "cybergear_can_interface_mcp.hh"
+#endif
 
 // setup master can id and motor can id (default cybergear can id is 0x7F)
 uint8_t MASTER_CAN_ID = 0x00;
@@ -25,18 +20,20 @@ std::vector<float> currents = {0.0f, 0.0f};
 
 // init cybergeardriver
 CybergearController controller = CybergearController(MASTER_CAN_ID);
-
+#ifdef USE_ESP32_CAN
+CybergearCanInterfaceEsp32 interface;
+#else
+CybergearCanInterfaceMcp interface;
+#endif
 
 void setup()
 {
   M5.begin();
 
-  // init cybergear driver
-  init_can();
-
   // init position offset
   M5.Lcd.print("Init motors ... ");
-  controller.init(motor_ids, MODE_POSITION, &CAN0);
+  interface.init();
+  controller.init(motor_ids, MODE_POSITION, &interface);
   controller.enable_motors();
   M5.Lcd.println("done");
 
@@ -47,7 +44,7 @@ void setup()
 
   // start bilateral mode
   M5.Lcd.print("starting leader follower demo ... ");
-  controller.init(motor_ids, MODE_CURRENT, &CAN0);
+  controller.init(motor_ids, MODE_CURRENT, &interface);
   controller.enable_motors();
   M5.Lcd.println("done");
 }
@@ -61,7 +58,7 @@ void loop()
 
   // update and get motor data
   std::vector<MotorStatus> status_list;
-  if ( controller.process_can_packet() ) {
+  if ( controller.process_packet() ) {
     controller.get_motor_status(status_list);
   }
 
@@ -71,11 +68,4 @@ void loop()
   // clamp data range
   currents[0] = min(max(currents[0], -MAX_CURRENT), MAX_CURRENT);
   currents[1] = min(max(currents[1], -MAX_CURRENT), MAX_CURRENT);
-}
-
-void init_can()
-{
-  CAN0.begin(MCP_ANY, CAN_1000KBPS, MCP_8MHZ);
-  CAN0.setMode(MCP_NORMAL);  // Set operation mode to normal so the MCP2515 sends acks to received data.
-  pinMode(CAN0_INT, INPUT);  // Configuring pin for /INT input
 }
