@@ -67,7 +67,6 @@ void setup()
   sprite.createSprite(M5.Lcd.width(), M5.Lcd.height());
 
   // init cybergear driver
-  interface.init(15, 5);
   interface.init();
   driver.init(&interface);
   driver.init_motor(mode);
