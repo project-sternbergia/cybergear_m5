@@ -3,7 +3,6 @@
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
 #include "cybergear_driver_utils.hh"
-#include <mcp_can.h>
 #include <cmath>
 
 CybergearController::CybergearController(uint8_t master_can_id)
