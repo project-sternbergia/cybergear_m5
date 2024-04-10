@@ -32,7 +32,7 @@ void get_color_and_mode_str(uint8_t mode, uint16_t & color, String & mode_str);
 
 // setup master can id and motor can id (default cybergear can id is 0x7F)
 uint8_t MASTER_CAN_ID = 0x00;
-uint8_t MOT_CAN_ID = 0x7E;
+uint8_t MOT_CAN_ID = 0x7F;
 
 // init cybergeardriver
 CybergearDriver driver = CybergearDriver(MASTER_CAN_ID, MOT_CAN_ID);
