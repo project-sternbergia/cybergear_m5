@@ -11,9 +11,6 @@
 #define CMD_RAM_WRITE                   18
 #define CMD_GET_MOTOR_FAIL              21
 
-#define ADDR_SPD_KP                0x2014
-#define ADDR_SPD_KI                0x2015
-#define ADDR_LOC_KP                0x2016
 #define ADDR_RUN_MODE              0x7005
 #define ADDR_IQ_REF                0x7006
 #define ADDR_SPEED_REF             0x700A
@@ -24,6 +21,14 @@
 #define ADDR_LOC_REF               0x7016
 #define ADDR_LIMIT_SPEED           0x7017
 #define ADDR_LIMIT_CURRENT         0x7018
+#define ADDR_MECH_POS              0x7019
+#define ADDR_IQF                   0x701A
+#define ADDR_MECH_VEL              0x701B
+#define ADDR_VBUS                  0x701C
+#define ADDR_ROTATION              0x701D
+#define ADDR_LOC_KP                0x701E
+#define ADDR_SPD_KP                0x701F
+#define ADDR_SPD_KI                0x7020
 
 #define MODE_MOTION   0x00
 #define MODE_POSITION 0x01
@@ -45,12 +50,26 @@
 #define CURRENT_FILTER_GAIN_MIN 0.0f
 #define CURRENT_FILTER_GAIN_MAX 1.0f
 
+#define IQ_REF_MAX 23.0f
+#define IQ_REF_MIN -23.0f
+#define SPD_REF_MAX 30.0f
+#define SPD_REF_MIN -30.0f
+#define LIMIT_TORQUE_MAX 0.0f
+#define LIMIT_TORQUE_MIN 12.0f
+#define CUR_KP_MAX  200.0f
+#define CUR_KP_MIN  0.0f
+#define CUR_KI_MAX  200.0f
+#define CUR_KI_MIN  0.0f
+#define LIMIT_SPD_MAX 30.0f
+#define LIMIT_SPD_MIN 0.0f
+
+
 #define DEFAULT_CURRENT_KP           0.125f
 #define DEFAULT_CURRENT_KI           0.0158f
 #define DEFAULT_CURRENT_FINTER_GAIN  0.1f
 #define DEFAULT_POSITION_KP          30.0f
 #define DEFAULT_VELOCITY_KP          2.0f
-#define DEFAULT_VELOCITY_KI          0.021f
+#define DEFAULT_VELOCITY_KI          0.002f
 #define DEFAULT_VELOCITY_LIMIT       2.0f
 #define DEFAULT_CURRENT_LIMIT        27.0f
 #define DEFAULT_TORQUE_LIMIT         12.0f
