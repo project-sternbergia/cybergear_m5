@@ -1,6 +1,7 @@
 #ifndef CYBER_GEAR_DRIVER_H
 #define CYBER_GEAR_DRIVER_H
 
+#include <unordered_map>
 #include "cybergear_driver_defs.hh"
 #include "cybergear_can_interface.hh"
 
@@ -21,6 +22,41 @@ struct MotorStatus
   uint16_t raw_temperature;     //!< raw temperature (for sync data)
 };
 
+
+struct MotorFault
+{
+  bool encoder_not_calibrated;
+  bool over_current_phase_a;
+  bool over_current_phase_b;
+  bool over_voltage;
+  bool under_voltage;
+  bool driver_chip;
+  bool motor_over_tempareture;
+};
+
+
+struct MotorParameter
+{
+  unsigned long stamp_usec;
+  uint16_t run_mode;
+  float iq_ref;
+  float spd_ref;
+  float limit_torque;
+  float cur_kp;
+  float cur_ki;
+  float cur_filt_gain;
+  float loc_ref;
+  float limit_spd;
+  float limit_cur;
+  float mech_pos;
+  float iqf;
+  float mech_vel;
+  float vbus;
+  int16_t rotation;
+  float loc_kp;
+  float spd_kp;
+  float spd_ki;
+};
 
 /**
  * @brief Cybergear driver class
@@ -130,9 +166,52 @@ public:
    */
   void set_limit_torque(float torque);
 
+  /**
+   * @brief Set the position kp gain
+   *
+   * @param kp kp gain for position control.
+   */
   void set_position_kp(float kp);
+
+  /**
+   * @brief Set the velocity kp gain
+   *
+   * @param kp kp gain for velocity control.
+   */
   void set_velocity_kp(float kp);
+
+  /**
+   * @brief Set the velocity ki gain
+   *
+   * @param ki ki gain for velocity control.
+   */
   void set_velocity_ki(float ki);
+
+  /**
+   * @brief Requeset mech position. This request response will store motor param struct.
+   */
+  void get_mech_position();
+
+  /**
+   * @brief Requeset mech velocity. This request response will store motor param struct.
+   */
+  void get_mech_velocity();
+
+  /**
+   * @brief Requeset vbus. This request response will store motor param struct.
+   */
+  void get_vbus();
+
+  /**
+   * @brief Requeset rotation. This request response will store motor param struct.
+   */
+  void get_rotation();
+
+  /**
+   * @brief Request motor parameters. This funciton takes param x 1msec for can response. please use this as a debug function.
+   *        This request response will store motor param struct.
+   */
+  void dump_motor_param();
 
   /**
    * @brief Set position reference for position control mode
@@ -213,8 +292,20 @@ public:
    *
    * @return MotorStatus  motor status
    */
-  MotorStatus get_motor_status() const;
+  MotorStatus get_motor_status() const { return motor_status_; }
 
+  /**
+   * @brief Get the motor param object
+   *
+   * @return MotorParameter motor param
+   */
+  MotorParameter get_motor_param() const { return motor_param_; }
+
+  /**
+   * @brief Get send count
+   *
+   * @return unsigned long total send count from this driver class.
+   */
   unsigned long send_count() const { return send_count_; }
 
 private:
@@ -254,7 +345,30 @@ private:
    */
   void send_command(uint8_t can_id, uint8_t cmd_id, uint16_t option, uint8_t len, uint8_t * data);
 
-  uint8_t receive_motor_data(MotorStatus& mot);
+  /**
+   * @brief Receive motor data from can interface
+   *
+   * @param mot     motor status
+   * @return true   success to receive
+   * @return false  failed to receive
+   */
+  bool receive_motor_data(MotorStatus& mot);
+
+  /**
+   * @brief process motor response packet
+   *
+   * @param data  received data
+   * @param len   data length
+   */
+  void process_motor_packet(const uint8_t * data, unsigned long len);
+
+  /**
+   * @brief process read parameter packet
+   *
+   * @param data  received data
+   * @param len   data length
+   */
+  void process_read_parameter_packet(const uint8_t * data, unsigned long len);
 
   /**
    * @brief Print byte array as serial output
@@ -262,7 +376,7 @@ private:
    * @param data data
    * @param len length
    */
-  void print_can_packet(uint32_t id, uint8_t *data, uint8_t len);
+  void print_can_packet(uint32_t id, const uint8_t *data, uint8_t len);
 
 
   CybergearCanInterface *can_;  //!< can connection instance
@@ -271,7 +385,8 @@ private:
   uint8_t run_mode_;            //!< run mode
   uint8_t receive_buffer_[64];  //!< receive buffer
   MotorStatus motor_status_;    //!< current motor status
-  unsigned long send_count_;
+  MotorParameter motor_param_;  //!< motor parameter
+  unsigned long send_count_;    //!< send count
 };
 
 #endif // !CYBER_GEAR_DRIVER_H
