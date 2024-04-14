@@ -14,14 +14,14 @@ bool CybergearCanInterfaceMcp::init(uint8_t cs_pin, uint8_t int_pin)
 {
   if (pcan_ != nullptr)
   {
-    CG_DEBUG_PRINLN("Failed to open can intetrface. CAN interface has already opened.");
+    CG_DEBUG_PRINTLN("Failed to open can intetrface. CAN interface has already opened.");
     return false;
   }
 
   pcan_ = new MCP_CAN(cs_pin);
   if (!pcan_->begin(MCP_ANY, CAN_1000KBPS, MCP_8MHZ) == CAN_OK)
   {
-    CG_DEBUG_PRINLN("Failed to open can intetrface.");
+    CG_DEBUG_PRINTLN("Failed to open can intetrface.");
     return false;
   }
 
