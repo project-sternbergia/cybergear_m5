@@ -56,6 +56,7 @@ bool CybergearCanInterfaceEsp32::init(uint8_t rx_pin, uint8_t tx_pin)
 
 bool CybergearCanInterfaceEsp32::send_message(uint32_t id, const uint8_t *data, uint8_t len, bool ext)
 {
+  CG_DEBUG_FUNC
   // change packet type
   if (ext) {
     CAN.beginExtendedPacket(id);
@@ -71,6 +72,7 @@ bool CybergearCanInterfaceEsp32::send_message(uint32_t id, const uint8_t *data, 
 
 bool CybergearCanInterfaceEsp32::read_message(unsigned long& id, uint8_t *data, uint8_t& len)
 {
+  CG_DEBUG_FUNC
   // check empty
   if (buffer.isEmpty()) return false;
 
@@ -87,5 +89,6 @@ bool CybergearCanInterfaceEsp32::read_message(unsigned long& id, uint8_t *data, 
 
 bool CybergearCanInterfaceEsp32::available()
 {
+  CG_DEBUG_FUNC
   return (buffer.isEmpty() == false);
 }

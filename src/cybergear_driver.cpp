@@ -1,6 +1,7 @@
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
 #include "cybergear_driver_utils.hh"
+#include <vector>
 #include <Arduino.h>
 #include <M5Stack.h>
 
@@ -90,7 +91,6 @@ void CybergearDriver::set_current_kp(float kp)
 
 void CybergearDriver::set_current_ki(float ki)
 {
-  // NOT SUPPOTED (no information about limit on manual)
   // write_float_data(target_can_id_, ADDR_CURRENT_KI, ki, 0.0f, KI_MAX);
 }
 
@@ -117,6 +117,56 @@ void CybergearDriver::set_velocity_kp(float kp)
 void CybergearDriver::set_velocity_ki(float ki)
 {
   write_float_data(target_can_id_, ADDR_SPD_KI, ki, 0.0f, 200.0f);
+}
+
+void CybergearDriver::get_mech_position()
+{
+  read_ram_data(ADDR_MECH_POS);
+}
+
+void CybergearDriver::get_mech_velocity()
+{
+  read_ram_data(ADDR_MECH_VEL);
+}
+
+void CybergearDriver::get_vbus()
+{
+  read_ram_data(ADDR_VBUS);
+}
+
+void CybergearDriver::get_rotation()
+{
+  read_ram_data(ADDR_ROTATION);
+}
+
+void CybergearDriver::dump_motor_param()
+{
+  const std::vector<uint16_t> index_array = {
+    ADDR_RUN_MODE,
+    ADDR_IQ_REF,
+    ADDR_SPEED_REF,
+    ADDR_LIMIT_TORQUE,
+    ADDR_CURRENT_KP,
+    ADDR_CURRENT_KI,
+    ADDR_CURRENT_FILTER_GAIN,
+    ADDR_LOC_REF,
+    ADDR_LIMIT_SPEED,
+    ADDR_LIMIT_CURRENT,
+    ADDR_MECH_POS,
+    ADDR_IQF,
+    ADDR_MECH_VEL,
+    ADDR_VBUS,
+    ADDR_ROTATION,
+    ADDR_LOC_KP,
+    ADDR_SPD_KP,
+    ADDR_SPD_KI
+  };
+
+  for (auto index : index_array)
+  {
+    read_ram_data(index);
+    delay(1);
+  }
 }
 
 void CybergearDriver::set_position_ref(float position)
@@ -167,18 +217,24 @@ uint8_t CybergearDriver::get_motor_id() const
 
 bool CybergearDriver::process_packet()
 {
+  CG_DEBUG_FUNC
   bool check_update = false;
   while (true) {
-    uint8_t ret = receive_motor_data(motor_status_);
-    if (ret == RET_CYBERGEAR_OK) check_update = true;
-    else if (ret == RET_CYBERGEAR_MSG_NOT_AVAIL) break;
+    if (receive_motor_data(motor_status_))
+    {
+      check_update = true;
+    }
+    else
+    {
+      break;
+    }
   }
   return check_update;
 }
 
 bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data, unsigned long len)
 {
-  // if id is not mine
+  CG_DEBUG_FUNC
   uint8_t receive_can_id = id & 0xff;
   if ( receive_can_id != master_can_id_ ) {
     return false;
@@ -191,29 +247,22 @@ bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data
 
   // check packet type
   uint8_t packet_type = (id & 0x3F000000) >> 24;
-  if ( packet_type != CMD_RESPONSE ) {
+  if (packet_type == CMD_RESPONSE) {
+    process_motor_packet(data, len);
+
+  } else if (packet_type == CMD_RAM_READ){
+    process_read_parameter_packet(data, len);
+
+  } else if (packet_type == CMD_GET_MOTOR_FAIL) {
+    // NOT IMPLEMENTED
+
+  } else {
+    CG_DEBUG_PRINTF("invalid command response [0x%x]\n", packet_type);
+    print_can_packet(id, data, len);
     return false;
   }
 
-  motor_status_.raw_position = data[1] | data[0] << 8;
-  motor_status_.raw_velocity = data[3] | data[2] << 8;
-  motor_status_.raw_effort = data[5] | data[4] << 8;
-  motor_status_.raw_temperature = data[7] | data[6] << 8;
-
-  // convert motor data
-  motor_status_.stamp_usec = micros();
-  motor_status_.motor_id = motor_can_id;
-  motor_status_.position = uint_to_float(motor_status_.raw_position, P_MIN, P_MAX);
-  motor_status_.velocity = uint_to_float(motor_status_.raw_velocity, V_MIN, V_MAX);
-  motor_status_.effort = uint_to_float(motor_status_.raw_effort, T_MIN, T_MAX);
-  motor_status_.temperature = motor_status_.raw_temperature;
-
   return true;
-}
-
-MotorStatus CybergearDriver::get_motor_status() const
-{
-  return motor_status_;
 }
 
 void CybergearDriver::write_float_data(uint8_t can_id, uint16_t addr, float value, float min, float max)
@@ -251,54 +300,150 @@ void CybergearDriver::send_command(uint8_t can_id, uint8_t cmd_id, uint16_t opti
   ++send_count_;
 }
 
-uint8_t CybergearDriver::receive_motor_data(MotorStatus & mot)
+bool CybergearDriver::receive_motor_data(MotorStatus & mot)
 {
   // receive data
   unsigned long id;
   uint8_t len;
   if (!can_->read_message(id, receive_buffer_, len)) {
-    return RET_CYBERGEAR_MSG_NOT_AVAIL;
+    CG_DEBUG_PRINTLN("received data is not available");
+    return false;
   }
 
   // if id is not mine
   uint8_t receive_can_id = id & 0xff;
   if ( receive_can_id != master_can_id_ ) {
     CG_DEBUG_PRINTF("Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_, receive_can_id, id);
-    return RET_CYBERGEAR_INVALID_CAN_ID;
+    return false;
   }
 
   uint8_t motor_can_id = (id & 0xff00) >> 8;
   if ( motor_can_id != target_can_id_ ) {
     CG_DEBUG_PRINTF("Invalid target can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", target_can_id_, motor_can_id, id);
-    return RET_CYBERGEAR_INVALID_CAN_ID;
+    return false;
   }
 
   // parse packet --------------
-
-  // check packet type
-  uint8_t packet_type = (id & 0x3F000000) >> 24;
-  if ( packet_type != CMD_RESPONSE ) {
-    CG_DEBUG_PRINLN("invalid command response");
-    return RET_CYBERGEAR_INVALID_PACKET;
-  }
-
-  mot.raw_position = receive_buffer_[1] | receive_buffer_[0] << 8;
-  mot.raw_velocity = receive_buffer_[3] | receive_buffer_[2] << 8;
-  mot.raw_effort = receive_buffer_[5] | receive_buffer_[4] << 8;
-  mot.raw_temperature = receive_buffer_[7] | receive_buffer_[6] << 8;
-
-  // convert motor data
-  mot.stamp_usec = micros();
-  mot.motor_id = motor_can_id;
-  mot.position = uint_to_float(mot.raw_position, P_MIN, P_MAX);
-  mot.velocity = uint_to_float(mot.raw_velocity, V_MIN, V_MAX);
-  mot.effort = uint_to_float(mot.raw_effort, T_MIN, T_MAX);
-  mot.temperature = mot.raw_temperature;
-
-  return RET_CYBERGEAR_OK;
+  return update_motor_status(id, receive_buffer_, len);
 }
 
-void CybergearDriver::print_can_packet(uint32_t id, uint8_t *data, uint8_t len)
+void CybergearDriver::process_motor_packet(const uint8_t * data, unsigned long len)
+{
+  motor_status_.raw_position = data[1] | data[0] << 8;
+  motor_status_.raw_velocity = data[3] | data[2] << 8;
+  motor_status_.raw_effort = data[5] | data[4] << 8;
+  motor_status_.raw_temperature = data[7] | data[6] << 8;
+
+  // convert motor data
+  motor_status_.stamp_usec = micros();
+  motor_status_.motor_id = target_can_id_;
+  motor_status_.position = uint_to_float(motor_status_.raw_position, P_MIN, P_MAX);
+  motor_status_.velocity = uint_to_float(motor_status_.raw_velocity, V_MIN, V_MAX);
+  motor_status_.effort = uint_to_float(motor_status_.raw_effort, T_MIN, T_MAX);
+  motor_status_.temperature = motor_status_.raw_temperature;
+}
+
+void CybergearDriver::process_read_parameter_packet(const uint8_t * data, unsigned long len)
+{
+  uint16_t index = data[1] << 8 | data[0];
+
+  uint8_t uint8_data;
+  memcpy(&uint8_data, &data[4], sizeof(uint8_t));
+
+  int16_t int16_data;
+  memcpy(&int16_data, &data[4], sizeof(int16_t));
+
+  float float_data;
+  memcpy(&float_data, &data[4], sizeof(float));
+
+  bool is_updated = true;
+
+  switch (index)
+  {
+    case ADDR_RUN_MODE:
+      motor_param_.run_mode = uint8_data;
+      CG_DEBUG_PRINTF("Receive ADDR_RUN_MODE = [0x%02x]\n", uint8_data);
+      break;
+    case ADDR_IQ_REF:
+      motor_param_.iq_ref = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_IQ_REF = [%f]\n", float_data);
+      break;
+    case ADDR_SPEED_REF:
+      motor_param_.spd_ref = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_SPEED_REF = [%f]\n", float_data);
+      break;
+    case ADDR_LIMIT_TORQUE:
+      motor_param_.limit_torque = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_LIMIT_TORQUE = [%f]\n", float_data);
+      break;
+    case ADDR_CURRENT_KP:
+      motor_param_.cur_kp = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_CURRENT_KP = [%f]\n", float_data);
+      break;
+    case ADDR_CURRENT_KI:
+      motor_param_.cur_ki = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_CURRENT_KI = [%f]\n", float_data);
+      break;
+    case ADDR_CURRENT_FILTER_GAIN:
+      motor_param_.cur_filt_gain = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_CURRENT_FILTER_GAIN = [%f]\n", float_data);
+      break;
+    case ADDR_LOC_REF:
+      motor_param_.loc_ref = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_LOC_REF = [%f]\n", float_data);
+      break;
+    case ADDR_LIMIT_SPEED:
+      motor_param_.limit_spd = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_LIMIT_SPEED = [%f]\n", float_data);
+      break;
+    case ADDR_LIMIT_CURRENT:
+      motor_param_.limit_cur = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_LIMIT_CURRENT = [%f]\n", float_data);
+      break;
+    case ADDR_MECH_POS:
+      motor_param_.mech_pos = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_MECH_POS = [%f]\n", float_data);
+      break;
+    case ADDR_IQF:
+      motor_param_.iqf = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_IQF = [%f]\n", float_data);
+      break;
+    case ADDR_MECH_VEL:
+      motor_param_.mech_vel = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_MECH_VEL = [%f]\n", float_data);
+      break;
+    case ADDR_VBUS:
+      motor_param_.vbus = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_VBUS = [%f]\n", float_data);
+      break;
+    case ADDR_ROTATION:
+      motor_param_.rotation = int16_data;
+      CG_DEBUG_PRINTF("Receive ADDR_ROTATION = [%d]\n", int16_data);
+      break;
+    case ADDR_LOC_KP:
+      motor_param_.loc_kp = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_LOC_KP = [%f]\n", float_data);
+      break;
+    case ADDR_SPD_KP:
+      motor_param_.spd_kp = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_SPD_KP = [%f]\n", float_data);
+      break;
+    case ADDR_SPD_KI:
+      motor_param_.spd_ki = float_data;
+      CG_DEBUG_PRINTF("Receive ADDR_SPD_KI = [%f]\n", float_data);
+      break;
+    default:
+      CG_DEBUG_PRINTF("Unknown parameter value index=[0x%04x]\n", index);
+      is_updated = false;
+      break;
+  }
+
+  if (is_updated) {
+    motor_param_.stamp_usec = micros();
+  }
+}
+
+void CybergearDriver::print_can_packet(uint32_t id, const uint8_t *data, uint8_t len)
 {
   Serial.print("Id : ");
   Serial.print(id, HEX);

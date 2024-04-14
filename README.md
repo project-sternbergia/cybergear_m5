@@ -12,7 +12,7 @@ M5 stack library for cybergear
 
 * M5Stack Basic V2.7
 
-## H/W Components
+## H/W Components (MCP2515)
 
 * [Xiaomi Cybergear](https://www.mi.com/cyber-gear)
 * [M5Stack Basic V2.7](https://shop.m5stack.com/collections/m5-controllers/products/esp32-basic-core-lot-development-kit-v2-7)
@@ -20,9 +20,15 @@ M5 stack library for cybergear
 * [XT30(2+2)-F](https://www.china-amass.com/product/contain/1Yf5h7G4u1927079)
 * [Grove Cable](https://www.seeedstudio.com/Grove-Universal-4-Pin-Buckled-20cm-Cable-5-PCs-pack.html)
 
-## H/W Connection
-
 ![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/c36d82cf-e91a-45da-ac53-a79e8d8fc730)
+
+## H/W Components (ESP32 + CAN Transceiver Unit)
+
+* [Xiaomi Cybergear](https://www.mi.com/cyber-gear)
+* [M5Stack Basic V2.7](https://shop.m5stack.com/collections/m5-controllers/products/esp32-basic-core-lot-development-kit-v2-7)
+* [LAN Module W5500 with PoE V12](https://shop.m5stack.com/products/lan-module-w5500-with-poe-v12) or [CANBus Unit(CA-IS3050G)](https://shop.m5stack.com/products/canbus-unitca-is3050g)
+* [XT30(2+2)-F](https://www.china-amass.com/product/contain/1Yf5h7G4u1927079)
+* [Grove Cable](https://www.seeedstudio.com/Grove-Universal-4-Pin-Buckled-20cm-Cable-5-PCs-pack.html)
 
 ## How to use Official GUI tool
 
@@ -47,6 +53,7 @@ Tested(for reference):
 cd ~/Arduino/libraries
 git clone https://github.com/coryjfowler/MCP_CAN_lib.git
 git clone https://github.com/Locoduino/RingBuffer.git
+git clone git@github.com:project-sternbergia/arduino-CAN.git
 git clone https://github.com/project-sternbergia/cybergear_m5.git
 ```
 
@@ -84,7 +91,7 @@ After that write [cybergear_m5/examples/cybergear_bilateral.ino](https://github.
 
 ## References
 
-* Xiaomi Cybergear 微电机使用说明书
+* [Xiaomi Cybergear 微电机使用说明书](https://web.vip.miui.com/page/info/mio/mio/detail?postId=40233100)
 
 ## LICENSE
 
