@@ -1,9 +1,10 @@
 #include "cybergear_bridge_packet.hh"
-#include <memory.h>
-#include <M5Stack.h>
 
-RequestPacket::RequestPacket(uint8_t type, uint16_t size, const ByteArray &packet)
-    : Packet(type, packet[2], size)
+#include <M5Stack.h>
+#include <memory.h>
+
+RequestPacket::RequestPacket(uint8_t type, uint16_t size, const ByteArray & packet)
+: Packet(type, packet[2], size)
 {
   command_packet_ = ByteArray(packet.begin(), packet.begin() + CommandPacketSize);
   data_packet_ = ByteArray(packet.begin() + command_packet_.size(), packet.end());
@@ -76,24 +77,17 @@ bool RequestPacket::validate() const
   return check_checksum();
 }
 
-const ByteArray &RequestPacket::command_packet() const
-{
-  return command_packet_;
-}
+const ByteArray & RequestPacket::command_packet() const { return command_packet_; }
 
-const ByteArray &RequestPacket::data_packet() const
-{
-  return data_packet_;
-}
-
+const ByteArray & RequestPacket::data_packet() const { return data_packet_; }
 
 // EnableRequestPaket
-EnableRequestPacket::EnableRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::Enable), Packet::CommandPacketSize, packet)
-{}
+EnableRequestPacket::EnableRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::Enable), Packet::CommandPacketSize, packet)
+{
+}
 
-EnableRequestPacket::~EnableRequestPacket()
-{}
+EnableRequestPacket::~EnableRequestPacket() {}
 
 bool EnableRequestPacket::unpack()
 {
@@ -102,19 +96,15 @@ bool EnableRequestPacket::unpack()
   return true;
 }
 
-uint8_t EnableRequestPacket::control_mode() const
-{
-  return control_mode_;
-}
-
+uint8_t EnableRequestPacket::control_mode() const { return control_mode_; }
 
 // EnableRequestPaket
-ResetRequestPacket::ResetRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::Reset), Packet::CommandPacketSize, packet)
-{}
+ResetRequestPacket::ResetRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::Reset), Packet::CommandPacketSize, packet)
+{
+}
 
-ResetRequestPacket::~ResetRequestPacket()
-{}
+ResetRequestPacket::~ResetRequestPacket() {}
 
 bool ResetRequestPacket::unpack()
 {
@@ -122,11 +112,11 @@ bool ResetRequestPacket::unpack()
   return true;
 }
 
-
 // SetMechPosToZeroRequestPacket
-SetMechPosToZeroRequestPacket::SetMechPosToZeroRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::SetMechPosToZero), Packet::CommandPacketSize, packet)
-{}
+SetMechPosToZeroRequestPacket::SetMechPosToZeroRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::SetMechPosToZero), Packet::CommandPacketSize, packet)
+{
+}
 
 bool SetMechPosToZeroRequestPacket::unpack()
 {
@@ -135,45 +125,49 @@ bool SetMechPosToZeroRequestPacket::unpack()
 }
 
 // SetLimitSpeedRequestPacket
-SetLimitSpeedRequestPacket::SetLimitSpeedRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::SetLimitSpeed), PacketSize, packet)
-{}
+SetLimitSpeedRequestPacket::SetLimitSpeedRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::SetLimitSpeed), PacketSize, packet)
+{
+}
 
 bool SetLimitSpeedRequestPacket::unpack()
 {
   if (!RequestPacket::unpack()) return false;
-  memcpy(&limit_speed_ , data_packet().data(), sizeof(float));
+  memcpy(&limit_speed_, data_packet().data(), sizeof(float));
   return true;
 }
 
 // SetLimitCurrentRequestPacket
-SetLimitCurrentRequestPacket::SetLimitCurrentRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::SetLimitCurrent), PacketSize, packet)
-{}
+SetLimitCurrentRequestPacket::SetLimitCurrentRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::SetLimitCurrent), PacketSize, packet)
+{
+}
 
 bool SetLimitCurrentRequestPacket::unpack()
 {
   if (!RequestPacket::unpack()) return false;
-  memcpy(&limit_current_ , data_packet().data(), sizeof(float));
+  memcpy(&limit_current_, data_packet().data(), sizeof(float));
   return true;
 }
 
 // SetLimitTorqueRequestPacket
-SetLimitTorqueRequestPacket::SetLimitTorqueRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::SetLimitTorque), PacketSize, packet)
-{}
+SetLimitTorqueRequestPacket::SetLimitTorqueRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::SetLimitTorque), PacketSize, packet)
+{
+}
 
 bool SetLimitTorqueRequestPacket::unpack()
 {
   if (!RequestPacket::unpack()) return false;
-  memcpy(&limit_torque_ , data_packet().data(), sizeof(float));
+  memcpy(&limit_torque_, data_packet().data(), sizeof(float));
   return true;
 }
 
 // SetPositionControlGainRequestPacket
-SetPositionControlGainRequestPacket::SetPositionControlGainRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::SetPositionControlGain), PacketSize, packet)
-{}
+SetPositionControlGainRequestPacket::SetPositionControlGainRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::SetPositionControlGain), PacketSize, packet)
+{
+}
 
 bool SetPositionControlGainRequestPacket::unpack()
 {
@@ -183,9 +177,10 @@ bool SetPositionControlGainRequestPacket::unpack()
 }
 
 // SetVelocityControlGainRequestPacket
-SetVelocityControlGainRequestPacket::SetVelocityControlGainRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::SetVelocityControlGain), PacketSize, packet)
-{}
+SetVelocityControlGainRequestPacket::SetVelocityControlGainRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::SetVelocityControlGain), PacketSize, packet)
+{
+}
 
 bool SetVelocityControlGainRequestPacket::unpack()
 {
@@ -196,12 +191,12 @@ bool SetVelocityControlGainRequestPacket::unpack()
 }
 
 // ControlPositionRequestPacket
-ControlPositionRequestPacket::ControlPositionRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::ControlPosition), PacketSize, packet)
-{}
+ControlPositionRequestPacket::ControlPositionRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::ControlPosition), PacketSize, packet)
+{
+}
 
-ControlPositionRequestPacket::~ControlPositionRequestPacket()
-{}
+ControlPositionRequestPacket::~ControlPositionRequestPacket() {}
 
 bool ControlPositionRequestPacket::unpack()
 {
@@ -211,12 +206,12 @@ bool ControlPositionRequestPacket::unpack()
 }
 
 // ControlSpeedRequestPacket
-ControlSpeedRequestPacket::ControlSpeedRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::ControlSpeed), PacketSize, packet)
-{}
+ControlSpeedRequestPacket::ControlSpeedRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::ControlSpeed), PacketSize, packet)
+{
+}
 
-ControlSpeedRequestPacket::~ControlSpeedRequestPacket()
-{}
+ControlSpeedRequestPacket::~ControlSpeedRequestPacket() {}
 
 bool ControlSpeedRequestPacket::unpack()
 {
@@ -226,12 +221,12 @@ bool ControlSpeedRequestPacket::unpack()
 }
 
 // ControlCurrentRequestPacket
-ControlCurrentRequestPacket::ControlCurrentRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::ControlCurrent), PacketSize, packet)
-{}
+ControlCurrentRequestPacket::ControlCurrentRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::ControlCurrent), PacketSize, packet)
+{
+}
 
-ControlCurrentRequestPacket::~ControlCurrentRequestPacket()
-{}
+ControlCurrentRequestPacket::~ControlCurrentRequestPacket() {}
 
 bool ControlCurrentRequestPacket::unpack()
 {
@@ -241,12 +236,12 @@ bool ControlCurrentRequestPacket::unpack()
 }
 
 // ControlMotionRequestPacket
-ControlMotionRequestPacket::ControlMotionRequestPacket(const ByteArray &packet)
-  : RequestPacket(static_cast<uint8_t>(Type::ControlMotion), PacketSize, packet)
-{}
+ControlMotionRequestPacket::ControlMotionRequestPacket(const ByteArray & packet)
+: RequestPacket(static_cast<uint8_t>(Type::ControlMotion), PacketSize, packet)
+{
+}
 
-ControlMotionRequestPacket::~ControlMotionRequestPacket()
-{}
+ControlMotionRequestPacket::~ControlMotionRequestPacket() {}
 
 bool ControlMotionRequestPacket::unpack()
 {
@@ -261,15 +256,15 @@ bool ControlMotionRequestPacket::unpack()
 
 // Response Packet
 ResponsePacket::ResponsePacket(uint8_t type, uint8_t id, uint16_t size, uint8_t seq)
-  : Packet(type, id, size)
-  , packet_(size)
-  , packet_sequence_(seq)
-  , command_packet_(CommandPacketSize)
-  , data_packet_(size - CommandPacketSize)
-{}
+: Packet(type, id, size),
+  packet_(size),
+  packet_sequence_(seq),
+  command_packet_(CommandPacketSize),
+  data_packet_(size - CommandPacketSize)
+{
+}
 
-ResponsePacket::~ResponsePacket()
-{}
+ResponsePacket::~ResponsePacket() {}
 
 bool ResponsePacket::pack()
 {
@@ -297,7 +292,7 @@ const ByteArray & ResponsePacket::packet()
   return packet_;
 }
 
-uint8_t ResponsePacket::calc_checksum(const ByteArray& packet) const
+uint8_t ResponsePacket::calc_checksum(const ByteArray & packet) const
 {
   uint8_t checksum = 0x00;
   for (uint8_t idx = 0; idx < packet.size() - 1; ++idx) {
@@ -306,18 +301,17 @@ uint8_t ResponsePacket::calc_checksum(const ByteArray& packet) const
   return checksum;
 }
 
-MotorStatusResponsePacket::MotorStatusResponsePacket(uint8_t id, float pos, float vel, float eff, float temp, uint8_t seq)
-  : ResponsePacket(static_cast<uint8_t>(ResponsePacket::Type::MotorStatus), id,  PacketSize, seq)
-  , position_(pos)
-  , velocity_(vel)
-  , effort_(eff)
-  , tempareture_(temp)
+MotorStatusResponsePacket::MotorStatusResponsePacket(
+  uint8_t id, float pos, float vel, float eff, float temp, uint8_t seq)
+: ResponsePacket(static_cast<uint8_t>(ResponsePacket::Type::MotorStatus), id, PacketSize, seq),
+  position_(pos),
+  velocity_(vel),
+  effort_(eff),
+  tempareture_(temp)
 {
 }
 
-MotorStatusResponsePacket::~MotorStatusResponsePacket()
-{
-}
+MotorStatusResponsePacket::~MotorStatusResponsePacket() {}
 
 bool MotorStatusResponsePacket::pack()
 {

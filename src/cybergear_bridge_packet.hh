@@ -2,8 +2,9 @@
 #define CYBER_GEAR_BRIDGE_PAKCET_HH
 
 #include <sys/types.h>
-#include <vector>
+
 #include <cstdint>
+#include <vector>
 
 typedef std::vector<uint8_t> ByteArray;
 
@@ -19,17 +20,16 @@ public:
   /**
    * @brief CommandPacketIndex enum class
    */
-  enum class CommandPacketIndex
-  {
-    FrameHeader = 0,    //!< frame header index
-    PacketType,         //!< packet type index
-    TargetMotorId,      //!< target motor id index
-    DataFrameSize,      //!< data frame size index
-    PacketSequence,     //!< packet sequence index
-    RequsetType,        //!< request type index
-    Optional,           //!< optional type index
-    CheckSum,           //!< checksum index
-    PacketSize          //!< packet size index
+  enum class CommandPacketIndex {
+    FrameHeader = 0,  //!< frame header index
+    PacketType,       //!< packet type index
+    TargetMotorId,    //!< target motor id index
+    DataFrameSize,    //!< data frame size index
+    PacketSequence,   //!< packet sequence index
+    RequsetType,      //!< request type index
+    Optional,         //!< optional type index
+    CheckSum,         //!< checksum index
+    PacketSize        //!< packet size index
   };
 
   /**
@@ -66,23 +66,22 @@ public:
   /**
    * @brief Request packet type
    */
-  enum class Type
-  {
-    Enable = 0,           //!< enable request packet type
-    Reset,                //!< reset request packet type
+  enum class Type {
+    Enable = 0,  //!< enable request packet type
+    Reset,       //!< reset request packet type
     // GetMotorIdList,    //!< get motor id list packet type (not implemented)
     // GetControlMode,    //!< get control mode packet type (not implemented)
-    ControlMotion,        //!< control motion request packet type
-    ControlSpeed,         //!< control speed request packet type
-    ControlPosition,      //!< control position request packet type
-    ControlCurrent,       //!< control current request packet type
-    SetMechPosToZero,     //!< set current mechanical encoder position to zero
+    ControlMotion,     //!< control motion request packet type
+    ControlSpeed,      //!< control speed request packet type
+    ControlPosition,   //!< control position request packet type
+    ControlCurrent,    //!< control current request packet type
+    SetMechPosToZero,  //!< set current mechanical encoder position to zero
     // GetMotorParameter,
-    SetLimitSpeed,        //!< set limit speed
-    SetLimitCurrent,      //!< set limit current
-    SetLimitTorque,       //!< set limit torque
-    SetPositionControlGain, //!< set position control gain
-    SetVelocityControlGain, //!< set velocity control gain
+    SetLimitSpeed,           //!< set limit speed
+    SetLimitCurrent,         //!< set limit current
+    SetLimitTorque,          //!< set limit torque
+    SetPositionControlGain,  //!< set position control gain
+    SetVelocityControlGain,  //!< set velocity control gain
     _INVALID_TYPE_RANGE
   };
 
@@ -93,7 +92,7 @@ public:
    * @param size    packet size
    * @param packet  packet data
    */
-  RequestPacket(uint8_t type, uint16_t size, const ByteArray &packet);
+  RequestPacket(uint8_t type, uint16_t size, const ByteArray & packet);
 
   /**
    * @brief Unpack packet
@@ -112,17 +111,20 @@ public:
   bool validate() const;
 
   // accessors
-  uint8_t command_packet_id() const {return packet_id_; };
-  uint8_t command_packet_type() const {return packet_type_; };
-  uint8_t command_packet_sequence() const {return packet_sequence_; };
-  uint8_t command_packet_optional1() const {return packet_optional1_; };
-  uint8_t command_packet_optional2() const {return packet_optional2_; };
+  uint8_t command_packet_id() const { return packet_id_; };
+  uint8_t command_packet_type() const { return packet_type_; };
+  uint8_t command_packet_sequence() const { return packet_sequence_; };
+  uint8_t command_packet_optional1() const { return packet_optional1_; };
+  uint8_t command_packet_optional2() const { return packet_optional2_; };
 
 protected:
   bool check_checksum() const;
-  const ByteArray &command_packet() const;
-  const ByteArray &data_packet() const;
-  bool check_packet_type() const { return type() == command_packet_[static_cast<uint8_t>(Packet::CommandPacketIndex::PacketType)]; }
+  const ByteArray & command_packet() const;
+  const ByteArray & data_packet() const;
+  bool check_packet_type() const
+  {
+    return type() == command_packet_[static_cast<uint8_t>(Packet::CommandPacketIndex::PacketType)];
+  }
 
 private:
   ByteArray command_packet_;
@@ -137,7 +139,6 @@ private:
   uint8_t packet_checksum_;
 };
 
-
 /**
  * @brief EnableRequestPacket
  */
@@ -149,7 +150,7 @@ public:
    *
    * @param packet data packet
    */
-  explicit EnableRequestPacket(const ByteArray &packet);
+  explicit EnableRequestPacket(const ByteArray & packet);
 
   /**
    * @brief Destroy the Enable Request Packet object
@@ -171,7 +172,6 @@ private:
   uint8_t control_mode_;
 };
 
-
 /**
  * @brief ResetRequestPacket
  */
@@ -183,7 +183,7 @@ public:
    *
    * @param packet data packet
    */
-  explicit ResetRequestPacket(const ByteArray &packet);
+  explicit ResetRequestPacket(const ByteArray & packet);
 
   /**
    * @brief Destroy the Reset Request Packet object
@@ -205,7 +205,7 @@ public:
 class SetMechPosToZeroRequestPacket : public RequestPacket
 {
 public:
-  explicit SetMechPosToZeroRequestPacket(const ByteArray &packet);
+  explicit SetMechPosToZeroRequestPacket(const ByteArray & packet);
   virtual ~SetMechPosToZeroRequestPacket() {}
   virtual bool unpack();
 };
@@ -214,7 +214,7 @@ class SetLimitSpeedRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 5;
-  explicit SetLimitSpeedRequestPacket(const ByteArray &packet);
+  explicit SetLimitSpeedRequestPacket(const ByteArray & packet);
   virtual ~SetLimitSpeedRequestPacket() {}
   virtual bool unpack();
   float limit_speed() const { return limit_speed_; }
@@ -223,12 +223,11 @@ private:
   float limit_speed_;
 };
 
-
 class SetLimitCurrentRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 5;
-  explicit SetLimitCurrentRequestPacket(const ByteArray &packet);
+  explicit SetLimitCurrentRequestPacket(const ByteArray & packet);
   virtual ~SetLimitCurrentRequestPacket() {}
   virtual bool unpack();
   float limit_current() const { return limit_current_; }
@@ -237,12 +236,11 @@ private:
   float limit_current_;
 };
 
-
 class SetLimitTorqueRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 5;
-  explicit SetLimitTorqueRequestPacket(const ByteArray &packet);
+  explicit SetLimitTorqueRequestPacket(const ByteArray & packet);
   virtual ~SetLimitTorqueRequestPacket() {}
   virtual bool unpack();
   float limit_torque() const { return limit_torque_; }
@@ -251,12 +249,11 @@ private:
   float limit_torque_;
 };
 
-
 class SetPositionControlGainRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 4 + 1;
-  explicit SetPositionControlGainRequestPacket(const ByteArray &packet);
+  explicit SetPositionControlGainRequestPacket(const ByteArray & packet);
   virtual ~SetPositionControlGainRequestPacket() {}
   virtual bool unpack();
   float kp() const { return kp_; }
@@ -265,12 +262,11 @@ private:
   float kp_;
 };
 
-
 class SetVelocityControlGainRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 8 + 1;
-  explicit SetVelocityControlGainRequestPacket(const ByteArray &packet);
+  explicit SetVelocityControlGainRequestPacket(const ByteArray & packet);
   virtual ~SetVelocityControlGainRequestPacket() {}
   virtual bool unpack();
   float kp() const { return kp_; }
@@ -280,7 +276,6 @@ private:
   float kp_;
   float ki_;
 };
-
 
 /**
  * @brief ControlPositionRequestPacket
@@ -295,7 +290,7 @@ public:
    *
    * @param packet data packet
    */
-  explicit ControlPositionRequestPacket(const ByteArray &packet);
+  explicit ControlPositionRequestPacket(const ByteArray & packet);
 
   /**
    * @brief Destroy the Control Position Request Packet object
@@ -321,7 +316,7 @@ class ControlSpeedRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 5;
-  explicit ControlSpeedRequestPacket(const ByteArray &packet);
+  explicit ControlSpeedRequestPacket(const ByteArray & packet);
   virtual ~ControlSpeedRequestPacket();
   virtual bool unpack();
   float ref_speed() const { return ref_speed_; }
@@ -334,7 +329,7 @@ class ControlCurrentRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 5;
-  explicit ControlCurrentRequestPacket(const ByteArray &packet);
+  explicit ControlCurrentRequestPacket(const ByteArray & packet);
   virtual ~ControlCurrentRequestPacket();
   virtual bool unpack();
   float ref_current() const { return ref_current_; }
@@ -347,7 +342,7 @@ class ControlMotionRequestPacket : public RequestPacket
 {
 public:
   static const int PacketSize = CommandPacketSize + 4 * 5 + 1;
-  explicit ControlMotionRequestPacket(const ByteArray &packet);
+  explicit ControlMotionRequestPacket(const ByteArray & packet);
   virtual ~ControlMotionRequestPacket();
   virtual bool unpack();
   float ref_position() const { return ref_position_; }
@@ -370,10 +365,7 @@ private:
 class ResponsePacket : public Packet
 {
 public:
-  enum class Type
-  {
-    MotorStatus
-  };
+  enum class Type { MotorStatus };
 
   ResponsePacket(uint8_t type, uint8_t id, uint16_t size, uint8_t seq);
   virtual ~ResponsePacket();
@@ -381,7 +373,7 @@ public:
   const ByteArray & packet();
 
 protected:
-  uint8_t calc_checksum(const ByteArray& packet) const;
+  uint8_t calc_checksum(const ByteArray & packet) const;
   uint8_t packet_sequence_;
   ByteArray packet_;
   ByteArray command_packet_;
@@ -404,4 +396,4 @@ private:
   uint8_t sequence_;
 };
 
-#endif // CYBER_GEAR_BRIDGE_PACKET_HH
+#endif  // CYBER_GEAR_BRIDGE_PACKET_HH

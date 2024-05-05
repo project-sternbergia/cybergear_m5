@@ -1,33 +1,30 @@
 #include "cybergear_driver.hh"
-#include "cybergear_driver_defs.hh"
-#include "cybergear_driver_utils.hh"
-#include <vector>
+
 #include <Arduino.h>
 #include <M5Stack.h>
 
+#include <vector>
+
+#include "cybergear_driver_defs.hh"
+#include "cybergear_driver_utils.hh"
+
 CybergearDriver::CybergearDriver()
-  : can_(NULL)
-  , master_can_id_(0)
-  , target_can_id_(0)
-  , run_mode_(MODE_MOTION)
-  , send_count_(0)
-{}
+: can_(NULL), master_can_id_(0), target_can_id_(0), run_mode_(MODE_MOTION), send_count_(0)
+{
+}
 
 CybergearDriver::CybergearDriver(uint8_t master_can_id, uint8_t target_can_id)
-  : can_(NULL)
-  , master_can_id_(master_can_id)
-  , target_can_id_(target_can_id)
-  , run_mode_(MODE_MOTION)
-  , send_count_(0)
-{}
-
-CybergearDriver::~CybergearDriver()
-{}
-
-void CybergearDriver::init(CybergearCanInterface *can)
+: can_(NULL),
+  master_can_id_(master_can_id),
+  target_can_id_(target_can_id),
+  run_mode_(MODE_MOTION),
+  send_count_(0)
 {
-  can_ = can;
 }
+
+CybergearDriver::~CybergearDriver() {}
+
+void CybergearDriver::init(CybergearCanInterface * can) { can_ = can; }
 
 void CybergearDriver::init_motor(uint8_t run_mode)
 {
@@ -96,7 +93,9 @@ void CybergearDriver::set_current_ki(float ki)
 
 void CybergearDriver::set_current_filter_gain(float gain)
 {
-  write_float_data(target_can_id_, ADDR_CURRENT_FILTER_GAIN, gain, CURRENT_FILTER_GAIN_MIN, CURRENT_FILTER_GAIN_MAX);
+  write_float_data(
+    target_can_id_, ADDR_CURRENT_FILTER_GAIN, gain, CURRENT_FILTER_GAIN_MIN,
+    CURRENT_FILTER_GAIN_MAX);
 }
 
 void CybergearDriver::set_limit_torque(float torque)
@@ -119,25 +118,13 @@ void CybergearDriver::set_velocity_ki(float ki)
   write_float_data(target_can_id_, ADDR_SPD_KI, ki, 0.0f, 200.0f);
 }
 
-void CybergearDriver::get_mech_position()
-{
-  read_ram_data(ADDR_MECH_POS);
-}
+void CybergearDriver::get_mech_position() { read_ram_data(ADDR_MECH_POS); }
 
-void CybergearDriver::get_mech_velocity()
-{
-  read_ram_data(ADDR_MECH_VEL);
-}
+void CybergearDriver::get_mech_velocity() { read_ram_data(ADDR_MECH_VEL); }
 
-void CybergearDriver::get_vbus()
-{
-  read_ram_data(ADDR_VBUS);
-}
+void CybergearDriver::get_vbus() { read_ram_data(ADDR_VBUS); }
 
-void CybergearDriver::get_rotation()
-{
-  read_ram_data(ADDR_ROTATION);
-}
+void CybergearDriver::get_rotation() { read_ram_data(ADDR_ROTATION); }
 
 void CybergearDriver::dump_motor_param()
 {
@@ -159,11 +146,9 @@ void CybergearDriver::dump_motor_param()
     ADDR_ROTATION,
     ADDR_LOC_KP,
     ADDR_SPD_KP,
-    ADDR_SPD_KI
-  };
+    ADDR_SPD_KI};
 
-  for (auto index : index_array)
-  {
+  for (auto index : index_array) {
     read_ram_data(index);
     delay(1);
   }
@@ -205,27 +190,18 @@ void CybergearDriver::read_ram_data(uint16_t index)
   send_command(target_can_id_, CMD_RAM_READ, master_can_id_, 8, data);
 }
 
-uint8_t CybergearDriver::get_run_mode() const
-{
-  return run_mode_;
-}
+uint8_t CybergearDriver::get_run_mode() const { return run_mode_; }
 
-uint8_t CybergearDriver::get_motor_id() const
-{
-  return target_can_id_;
-}
+uint8_t CybergearDriver::get_motor_id() const { return target_can_id_; }
 
 bool CybergearDriver::process_packet()
 {
   CG_DEBUG_FUNC
   bool check_update = false;
   while (true) {
-    if (receive_motor_data(motor_status_))
-    {
+    if (receive_motor_data(motor_status_)) {
       check_update = true;
-    }
-    else
-    {
+    } else {
       break;
     }
   }
@@ -236,12 +212,12 @@ bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data
 {
   CG_DEBUG_FUNC
   uint8_t receive_can_id = id & 0xff;
-  if ( receive_can_id != master_can_id_ ) {
+  if (receive_can_id != master_can_id_) {
     return false;
   }
 
   uint8_t motor_can_id = (id & 0xff00) >> 8;
-  if ( motor_can_id != target_can_id_ ) {
+  if (motor_can_id != target_can_id_) {
     return false;
   }
 
@@ -250,7 +226,7 @@ bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data
   if (packet_type == CMD_RESPONSE) {
     process_motor_packet(data, len);
 
-  } else if (packet_type == CMD_RAM_READ){
+  } else if (packet_type == CMD_RAM_READ) {
     process_read_parameter_packet(data, len);
 
   } else if (packet_type == CMD_GET_MOTOR_FAIL) {
@@ -265,7 +241,8 @@ bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data
   return true;
 }
 
-void CybergearDriver::write_float_data(uint8_t can_id, uint16_t addr, float value, float min, float max)
+void CybergearDriver::write_float_data(
+  uint8_t can_id, uint16_t addr, float value, float min, float max)
 {
   uint8_t data[8] = {0x00};
   data[0] = addr & 0x00FF;
@@ -281,19 +258,22 @@ int CybergearDriver::float_to_uint(float x, float x_min, float x_max, int bits)
 {
   float span = x_max - x_min;
   float offset = x_min;
-  if(x > x_max) x = x_max;
-  else if(x < x_min) x = x_min;
-  return (int) ((x-offset)*((float)((1<<bits)-1))/span);
+  if (x > x_max)
+    x = x_max;
+  else if (x < x_min)
+    x = x_min;
+  return (int)((x - offset) * ((float)((1 << bits) - 1)) / span);
 }
 
 float CybergearDriver::uint_to_float(uint16_t x, float x_min, float x_max)
 {
   uint16_t type_max = 0xFFFF;
   float span = x_max - x_min;
-  return (float) x / type_max * span + x_min;
+  return (float)x / type_max * span + x_min;
 }
 
-void CybergearDriver::send_command(uint8_t can_id, uint8_t cmd_id, uint16_t option, uint8_t len, uint8_t * data)
+void CybergearDriver::send_command(
+  uint8_t can_id, uint8_t cmd_id, uint16_t option, uint8_t len, uint8_t * data)
 {
   uint32_t id = cmd_id << 24 | option << 8 | can_id;
   can_->send_message(id, data, len, true);
@@ -312,14 +292,18 @@ bool CybergearDriver::receive_motor_data(MotorStatus & mot)
 
   // if id is not mine
   uint8_t receive_can_id = id & 0xff;
-  if ( receive_can_id != master_can_id_ ) {
-    CG_DEBUG_PRINTF("Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_, receive_can_id, id);
+  if (receive_can_id != master_can_id_) {
+    CG_DEBUG_PRINTF(
+      "Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_,
+      receive_can_id, id);
     return false;
   }
 
   uint8_t motor_can_id = (id & 0xff00) >> 8;
-  if ( motor_can_id != target_can_id_ ) {
-    CG_DEBUG_PRINTF("Invalid target can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", target_can_id_, motor_can_id, id);
+  if (motor_can_id != target_can_id_) {
+    CG_DEBUG_PRINTF(
+      "Invalid target can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", target_can_id_,
+      motor_can_id, id);
     return false;
   }
 
@@ -358,8 +342,7 @@ void CybergearDriver::process_read_parameter_packet(const uint8_t * data, unsign
 
   bool is_updated = true;
 
-  switch (index)
-  {
+  switch (index) {
     case ADDR_RUN_MODE:
       motor_param_.run_mode = uint8_data;
       CG_DEBUG_PRINTF("Receive ADDR_RUN_MODE = [0x%02x]\n", uint8_data);
@@ -443,13 +426,13 @@ void CybergearDriver::process_read_parameter_packet(const uint8_t * data, unsign
   }
 }
 
-void CybergearDriver::print_can_packet(uint32_t id, const uint8_t *data, uint8_t len)
+void CybergearDriver::print_can_packet(uint32_t id, const uint8_t * data, uint8_t len)
 {
   Serial.print("Id : ");
   Serial.print(id, HEX);
 
   Serial.print(" Data : ");
-  for(byte i = 0; i<len; i++) {
+  for (byte i = 0; i < len; i++) {
     Serial.print(data[i], HEX);
     Serial.print(" ");
   }
