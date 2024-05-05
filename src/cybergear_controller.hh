@@ -1,37 +1,40 @@
 #ifndef CYBER_GEAR_CONTROLLER_HH
 #define CYBER_GEAR_CONTROLLER_HH
 
-#include "cybergear_can_interface.hh"
-#include "cybergear_driver.hh"
-#include <cstdint>
 #include <sys/types.h>
+
+#include <cmath>
+#include <cstdint>
 #include <unordered_map>
 #include <vector>
-#include <cmath>
+
+#include "cybergear_can_interface.hh"
+#include "cybergear_driver.hh"
 
 /**
  * @brief Cybergear config for hardware limit
  */
 struct CybergearHardwareConfig
 {
-  CybergearHardwareConfig() :
-    id (0xFF),
+  CybergearHardwareConfig()
+  : id(0xFF),
     limit_speed(2.0f),
     limit_current(27.0f),
     limit_torque(12.0f),
     current_kp(0.025f),
     current_ki(0.0258f),
     current_filter_gain(0.1f)
-  {}
+  {
+  }
 
-  uint8_t id;                   //!< motor id
-  int8_t direciton;             //!< motor direction (-1: ccw / 1: cw)
-  float limit_speed;            //!< limit speed (rad/s)
-  float limit_current;          //!< limit current (A)
-  float limit_torque;           //!< limit torque (Nm)
-  float current_kp;             //!< control parameter kp for current control
-  float current_ki;             //!< control parameter ki for current control
-  float current_filter_gain;    //!< current filter gain
+  uint8_t id;                 //!< motor id
+  int8_t direciton;           //!< motor direction (-1: ccw / 1: cw)
+  float limit_speed;          //!< limit speed (rad/s)
+  float limit_current;        //!< limit current (A)
+  float limit_torque;         //!< limit torque (Nm)
+  float current_kp;           //!< control parameter kp for current control
+  float current_ki;           //!< control parameter ki for current control
+  float current_filter_gain;  //!< current filter gain
 };
 
 /**
@@ -39,8 +42,8 @@ struct CybergearHardwareConfig
  */
 struct CybergearSoftwareConfig
 {
-  CybergearSoftwareConfig() :
-    id (0xFF),
+  CybergearSoftwareConfig()
+  : id(0xFF),
     direction(CW),
     limit_speed(30.0f),
     limit_current(27.0f),
@@ -49,10 +52,14 @@ struct CybergearSoftwareConfig
     lower_position_limit(-4.0 * M_PI),
     calib_direction(CW),
     position_offset(0.0f)
-  {}
+  {
+  }
 
-  CybergearSoftwareConfig(uint8_t id, int8_t dir, float limit_speed, float limit_current, float limit_torque, float upper_position_limit, float lower_position_limit, int8_t calib_direction, float position_offset) :
-    id(id),
+  CybergearSoftwareConfig(
+    uint8_t id, int8_t dir, float limit_speed, float limit_current, float limit_torque,
+    float upper_position_limit, float lower_position_limit, int8_t calib_direction,
+    float position_offset)
+  : id(id),
     direction(dir),
     limit_speed(limit_speed),
     limit_current(limit_current),
@@ -61,17 +68,18 @@ struct CybergearSoftwareConfig
     lower_position_limit(lower_position_limit),
     calib_direction(calib_direction),
     position_offset(position_offset)
-  {}
+  {
+  }
 
-  uint8_t id;                   //!< motor id
-  int8_t direction;             //!< motor direction
-  float limit_speed;            //!< limit speed (rad/s)
-  float limit_current;          //!< limit current (Aa)
-  float limit_torque;           //!< limit torque (Nm)
-  float upper_position_limit;   //!< motor upper limit [rad]
-  float lower_position_limit;   //!< motor lower limit [rad]
-  int8_t calib_direction;       //!< calibration direction
-  float position_offset;        //!< motor offset [rad]
+  uint8_t id;                  //!< motor id
+  int8_t direction;            //!< motor direction
+  float limit_speed;           //!< limit speed (rad/s)
+  float limit_current;         //!< limit current (Aa)
+  float limit_torque;          //!< limit torque (Nm)
+  float upper_position_limit;  //!< motor upper limit [rad]
+  float lower_position_limit;  //!< motor lower limit [rad]
+  int8_t calib_direction;      //!< calibration direction
+  float position_offset;       //!< motor offset [rad]
 };
 
 /**
@@ -79,11 +87,11 @@ struct CybergearSoftwareConfig
  */
 struct CybergearMotionCommand
 {
-  float position;   //!< target position
-  float velocity;   //!< target velocity (rad/sec)
-  float effort;     //!< target effort
-  float kp;         //!< motion control kp
-  float kd;         //!< motion control kd
+  float position;  //!< target position
+  float velocity;  //!< target velocity (rad/sec)
+  float effort;    //!< target effort
+  float kp;        //!< motion control kp
+  float kd;        //!< motion control kd
 };
 
 /**
@@ -113,7 +121,7 @@ public:
    * @return true   succeeded to init this class
    * @return false  failed to init this class
    */
-  bool init(const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface* can);
+  bool init(const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface * can);
 
   /**
    * @brief Init cybergear controller class
@@ -125,7 +133,9 @@ public:
    * @return true         succeeded to init this class
    * @return false        failed to init this class
    */
-  bool init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, CybergearCanInterface* can);
+  bool init(
+    const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs,
+    uint8_t mode, CybergearCanInterface * can);
 
   /**
    * @brief Set the run mode
@@ -163,7 +173,7 @@ public:
    * @return true     success to send
    * @return false    failed to send
    */
-  bool set_motor_config(const std::vector<CybergearHardwareConfig>& configs);
+  bool set_motor_config(const std::vector<CybergearHardwareConfig> & configs);
 
   /**
    * @brief Set cybergear motor config
@@ -172,7 +182,7 @@ public:
    * @return true     success to send
    * @return false    failed to send
    */
-  bool set_motor_config(const CybergearHardwareConfig& config);
+  bool set_motor_config(const CybergearHardwareConfig & config);
 
   // set motor config for cybergear can apis
   bool set_speed_limit(uint8_t id, float limit);
@@ -224,7 +234,8 @@ public:
    * @return true   success to set (if you want to check execution result, please check packet data)
    * @return false  failed to set (if you want to check execution result, please check packet data)
    */
-  bool send_motion_command(const std::vector<uint8_t> ids, const std::vector<CybergearMotionCommand> cmds);
+  bool send_motion_command(
+    const std::vector<uint8_t> ids, const std::vector<CybergearMotionCommand> cmds);
 
   /**
    * @brief send motion command to target motor
@@ -234,7 +245,7 @@ public:
    * @return true   success to set (if you want to check execution result, please check packet data)
    * @return false  failed to set (if you want to check execution result, please check packet data)
    */
-  bool send_motion_command(uint8_t id, const CybergearMotionCommand& cmd);
+  bool send_motion_command(uint8_t id, const CybergearMotionCommand & cmd);
 
   /**
    * @brief send position command to target motor
@@ -322,7 +333,7 @@ public:
    * @return true   succeed to get motor status
    * @return false  failed to get motor status
    */
-  bool get_motor_status(uint8_t id, MotorStatus& status);
+  bool get_motor_status(uint8_t id, MotorStatus & status);
 
   /**
    * @brief Get the software config object
@@ -332,7 +343,7 @@ public:
    * @return true
    * @return false
    */
-  bool get_software_config(uint8_t id, CybergearSoftwareConfig& config);
+  bool get_software_config(uint8_t id, CybergearSoftwareConfig & config);
 
   /**
    * @brief Process can packet
@@ -363,10 +374,10 @@ private:
   CybergearSoftwareConfigMap sw_configs_;
   uint8_t control_mode_;
 
-  CybergearCanInterface *can_;
+  CybergearCanInterface * can_;
   uint8_t master_can_id_;
   uint8_t receive_buffer_[64];
   unsigned long recv_count_;
 };
 
-#endif // !CYBER_GEAR_CONTROLLER_HH
+#endif  // !CYBER_GEAR_CONTROLLER_HH

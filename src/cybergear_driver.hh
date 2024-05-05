@@ -1,27 +1,25 @@
 #ifndef CYBER_GEAR_DRIVER_H
 #define CYBER_GEAR_DRIVER_H
 
-#include <unordered_map>
-#include "cybergear_driver_defs.hh"
 #include "cybergear_can_interface.hh"
+#include "cybergear_driver_defs.hh"
 
 /**
  * @brief MotorStatus class
  */
 struct MotorStatus
 {
-  unsigned long stamp_usec;     //< timestamp
-  uint8_t motor_id;             //!< motor id
-  float position;               //!< encoder position (-4pi to 4pi)
-  float velocity;               //!< motor velocity (-30rad/s to 30rad/s)
-  float effort;                 //!< motor effort (-12Nm - 12Nm)
-  float temperature;            //!< temperature
-  uint16_t raw_position;        //!< raw position (for sync data)
-  uint16_t raw_velocity;        //!< raw velocity (for sync data)
-  uint16_t raw_effort;          //!< raw effort (for sync data)
-  uint16_t raw_temperature;     //!< raw temperature (for sync data)
+  unsigned long stamp_usec;  //< timestamp
+  uint8_t motor_id;          //!< motor id
+  float position;            //!< encoder position (-4pi to 4pi)
+  float velocity;            //!< motor velocity (-30rad/s to 30rad/s)
+  float effort;              //!< motor effort (-12Nm - 12Nm)
+  float temperature;         //!< temperature
+  uint16_t raw_position;     //!< raw position (for sync data)
+  uint16_t raw_velocity;     //!< raw velocity (for sync data)
+  uint16_t raw_effort;       //!< raw effort (for sync data)
+  uint16_t raw_temperature;  //!< raw temperature (for sync data)
 };
-
 
 struct MotorFault
 {
@@ -33,7 +31,6 @@ struct MotorFault
   bool driver_chip;
   bool motor_over_tempareture;
 };
-
 
 struct MotorParameter
 {
@@ -84,7 +81,7 @@ public:
    *
    * @param ican CybergearCanInterface object for communication
    */
-  void init(CybergearCanInterface *ican);
+  void init(CybergearCanInterface * ican);
 
   /**
    * @brief Init motor
@@ -208,8 +205,8 @@ public:
   void get_rotation();
 
   /**
-   * @brief Request motor parameters. This funciton takes param x 1msec for can response. please use this as a debug function.
-   *        This request response will store motor param struct.
+   * @brief Request motor parameters. This funciton takes param x 1msec for can response. please use this as a debug
+   * function. This request response will store motor param struct.
    */
   void dump_motor_param();
 
@@ -352,7 +349,7 @@ private:
    * @return true   success to receive
    * @return false  failed to receive
    */
-  bool receive_motor_data(MotorStatus& mot);
+  bool receive_motor_data(MotorStatus & mot);
 
   /**
    * @brief process motor response packet
@@ -376,17 +373,16 @@ private:
    * @param data data
    * @param len length
    */
-  void print_can_packet(uint32_t id, const uint8_t *data, uint8_t len);
+  void print_can_packet(uint32_t id, const uint8_t * data, uint8_t len);
 
-
-  CybergearCanInterface *can_;  //!< can connection instance
-  uint8_t master_can_id_;       //!< master can id
-  uint8_t target_can_id_;       //!< target can id
-  uint8_t run_mode_;            //!< run mode
-  uint8_t receive_buffer_[64];  //!< receive buffer
-  MotorStatus motor_status_;    //!< current motor status
-  MotorParameter motor_param_;  //!< motor parameter
-  unsigned long send_count_;    //!< send count
+  CybergearCanInterface * can_;  //!< can connection instance
+  uint8_t master_can_id_;        //!< master can id
+  uint8_t target_can_id_;        //!< target can id
+  uint8_t run_mode_;             //!< run mode
+  uint8_t receive_buffer_[64];   //!< receive buffer
+  MotorStatus motor_status_;     //!< current motor status
+  MotorParameter motor_param_;   //!< motor parameter
+  unsigned long send_count_;     //!< send count
 };
 
-#endif // !CYBER_GEAR_DRIVER_H
+#endif  // !CYBER_GEAR_DRIVER_H

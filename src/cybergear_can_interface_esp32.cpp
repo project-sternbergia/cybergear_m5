@@ -1,10 +1,13 @@
 #include "cybergear_can_interface_esp32.hh"
-#include "cybergear_can_interface.hh"
-#include "cybergear_driver_utils.hh"
+
 #include <M5Stack.h>
+#include <RingBuf.h>
+
 #include <cstdint>
 #include <cstring>
-#include <RingBuf.h>
+
+#include "cybergear_can_interface.hh"
+#include "cybergear_driver_utils.hh"
 
 // use arduino-CAN
 #include <CAN.h>
@@ -36,16 +39,13 @@ static void on_receive(int size)
   buffer.lockedPushOverwrite(msg);
 }
 
-CybergearCanInterfaceEsp32::CybergearCanInterfaceEsp32()
-  : CybergearCanInterface()
-{}
+CybergearCanInterfaceEsp32::CybergearCanInterfaceEsp32() : CybergearCanInterface() {}
 
-CybergearCanInterfaceEsp32::~CybergearCanInterfaceEsp32()
-{}
+CybergearCanInterfaceEsp32::~CybergearCanInterfaceEsp32() {}
 
 bool CybergearCanInterfaceEsp32::init(uint8_t rx_pin, uint8_t tx_pin)
 {
-  CAN.setPins(rx_pin,tx_pin);
+  CAN.setPins(rx_pin, tx_pin);
   CAN.onReceive(on_receive);
   if (!CAN.begin(1000E3)) {
     return false;
@@ -54,7 +54,8 @@ bool CybergearCanInterfaceEsp32::init(uint8_t rx_pin, uint8_t tx_pin)
   return true;
 }
 
-bool CybergearCanInterfaceEsp32::send_message(uint32_t id, const uint8_t *data, uint8_t len, bool ext)
+bool CybergearCanInterfaceEsp32::send_message(
+  uint32_t id, const uint8_t * data, uint8_t len, bool ext)
 {
   CG_DEBUG_FUNC
   // change packet type
@@ -70,7 +71,7 @@ bool CybergearCanInterfaceEsp32::send_message(uint32_t id, const uint8_t *data, 
   return true;
 }
 
-bool CybergearCanInterfaceEsp32::read_message(unsigned long& id, uint8_t *data, uint8_t& len)
+bool CybergearCanInterfaceEsp32::read_message(unsigned long & id, uint8_t * data, uint8_t & len)
 {
   CG_DEBUG_FUNC
   // check empty
@@ -85,7 +86,6 @@ bool CybergearCanInterfaceEsp32::read_message(unsigned long& id, uint8_t *data, 
   memcpy(data, msg.data, len);
   return true;
 }
-
 
 bool CybergearCanInterfaceEsp32::available()
 {

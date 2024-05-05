@@ -15,4 +15,4 @@
 #define CG_DEBUG_PRINTLN(msg) Serial.println(msg);
 #endif
 
-#endif // CYBERGEAR_DRIVER_UTILS_HH
+#endif  // CYBERGEAR_DRIVER_UTILS_HH

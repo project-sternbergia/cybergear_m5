@@ -1,17 +1,18 @@
 #include "cybergear_bridge.hh"
-#include "cybergear_bridge.hh"
-#include "cybergear_bridge_packet.hh"
-#include <cstdint>
+
 #include <M5Stack.h>
 
-CybergearBridge::CybergearBridge(CybergearController *controller, Stream *stream)
-    : p_controller_(controller), p_stream_(stream), receive_buffer_()
+#include <cstdint>
+
+#include "cybergear_bridge.hh"
+#include "cybergear_bridge_packet.hh"
+
+CybergearBridge::CybergearBridge(CybergearController * controller, Stream * stream)
+: p_controller_(controller), p_stream_(stream), receive_buffer_()
 {
 }
 
-CybergearBridge::~CybergearBridge()
-{
-}
+CybergearBridge::~CybergearBridge() {}
 
 void CybergearBridge::process_request_command()
 {
@@ -19,7 +20,8 @@ void CybergearBridge::process_request_command()
   ByteArray request_packet;
   while (get_next_packet(request_packet)) {
     // process motor command
-    uint8_t packet_type = request_packet[static_cast<uint8_t>(Packet::CommandPacketIndex::PacketType)];
+    uint8_t packet_type =
+      request_packet[static_cast<uint8_t>(Packet::CommandPacketIndex::PacketType)];
     if (packet_type == static_cast<uint8_t>(RequestPacket::Type::ControlCurrent)) {
       process_current_control_request(request_packet);
 
@@ -71,7 +73,7 @@ void CybergearBridge::process_motor_response()
   }
 }
 
-void CybergearBridge::process_enable_motor_request(const ByteArray& request_packet)
+void CybergearBridge::process_enable_motor_request(const ByteArray & request_packet)
 {
   EnableRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -80,7 +82,7 @@ void CybergearBridge::process_enable_motor_request(const ByteArray& request_pack
   }
 }
 
-void CybergearBridge::process_reset_motor_request(const ByteArray& request_packet)
+void CybergearBridge::process_reset_motor_request(const ByteArray & request_packet)
 {
   ResetRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -89,7 +91,7 @@ void CybergearBridge::process_reset_motor_request(const ByteArray& request_packe
   }
 }
 
-void CybergearBridge::process_position_control_request(const ByteArray& request_packet)
+void CybergearBridge::process_position_control_request(const ByteArray & request_packet)
 {
   ControlPositionRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -98,7 +100,7 @@ void CybergearBridge::process_position_control_request(const ByteArray& request_
   }
 }
 
-void CybergearBridge::process_speed_control_request(const ByteArray& request_packet)
+void CybergearBridge::process_speed_control_request(const ByteArray & request_packet)
 {
   ControlSpeedRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -107,7 +109,7 @@ void CybergearBridge::process_speed_control_request(const ByteArray& request_pac
   }
 }
 
-void CybergearBridge::process_current_control_request(const ByteArray& request_packet)
+void CybergearBridge::process_current_control_request(const ByteArray & request_packet)
 {
   ControlCurrentRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -116,7 +118,7 @@ void CybergearBridge::process_current_control_request(const ByteArray& request_p
   }
 }
 
-void CybergearBridge::process_motion_control_request(const ByteArray& request_packet)
+void CybergearBridge::process_motion_control_request(const ByteArray & request_packet)
 {
   ControlMotionRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -131,7 +133,7 @@ void CybergearBridge::process_motion_control_request(const ByteArray& request_pa
   }
 }
 
-void CybergearBridge::process_set_mech_position_to_zero_request(const ByteArray& request_packet)
+void CybergearBridge::process_set_mech_position_to_zero_request(const ByteArray & request_packet)
 {
   SetMechPosToZeroRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -140,7 +142,7 @@ void CybergearBridge::process_set_mech_position_to_zero_request(const ByteArray&
   }
 }
 
-void CybergearBridge::process_set_limit_speed(const ByteArray& request_packet)
+void CybergearBridge::process_set_limit_speed(const ByteArray & request_packet)
 {
   SetLimitSpeedRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -149,7 +151,7 @@ void CybergearBridge::process_set_limit_speed(const ByteArray& request_packet)
   }
 }
 
-void CybergearBridge::process_set_limit_current(const ByteArray& request_packet)
+void CybergearBridge::process_set_limit_current(const ByteArray & request_packet)
 {
   SetLimitCurrentRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -158,7 +160,7 @@ void CybergearBridge::process_set_limit_current(const ByteArray& request_packet)
   }
 }
 
-void CybergearBridge::process_set_limit_torque(const ByteArray& request_packet)
+void CybergearBridge::process_set_limit_torque(const ByteArray & request_packet)
 {
   SetLimitTorqueRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -167,7 +169,7 @@ void CybergearBridge::process_set_limit_torque(const ByteArray& request_packet)
   }
 }
 
-void CybergearBridge::process_set_position_control_gain(const ByteArray& request_packet)
+void CybergearBridge::process_set_position_control_gain(const ByteArray & request_packet)
 {
   SetPositionControlGainRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -176,7 +178,7 @@ void CybergearBridge::process_set_position_control_gain(const ByteArray& request
   }
 }
 
-void CybergearBridge::process_set_velocity_control_gain(const ByteArray& request_packet)
+void CybergearBridge::process_set_velocity_control_gain(const ByteArray & request_packet)
 {
   SetVelocityControlGainRequestPacket request(request_packet);
   if (request.unpack()) {
@@ -189,7 +191,8 @@ void CybergearBridge::send_motor_status_response(uint8_t id, uint8_t seq)
 {
   MotorStatus mot;
   p_controller_->get_motor_status(id, mot);
-  MotorStatusResponsePacket response(mot.motor_id, mot.position, mot.velocity, mot.effort, mot.temperature, seq);
+  MotorStatusResponsePacket response(
+    mot.motor_id, mot.position, mot.velocity, mot.effort, mot.temperature, seq);
   if (response.pack()) {
     ByteArray response_packet = response.packet();
     p_stream_->write(response_packet.data(), response_packet.size());
@@ -205,7 +208,8 @@ bool CybergearBridge::get_next_packet(ByteArray & request_packet)
   }
 
   // erase ring buffer to next header byte
-  while (receive_buffer_[static_cast<uint8_t>(Packet::CommandPacketIndex::FrameHeader)] != Packet::Header) {
+  while (receive_buffer_[static_cast<uint8_t>(Packet::CommandPacketIndex::FrameHeader)] !=
+         Packet::Header) {
     uint8_t pop_data;
     receive_buffer_.pop(pop_data);
     if (receive_buffer_.isEmpty()) return false;
@@ -218,7 +222,8 @@ bool CybergearBridge::get_next_packet(ByteArray & request_packet)
 
   // check command + data frame size
   uint8_t cmd_packet_size = static_cast<uint8_t>(Packet::CommandPacketIndex::PacketSize);
-  uint8_t data_packet_size = receive_buffer_[static_cast<uint8_t>(Packet::CommandPacketIndex::DataFrameSize)];
+  uint8_t data_packet_size =
+    receive_buffer_[static_cast<uint8_t>(Packet::CommandPacketIndex::DataFrameSize)];
   uint8_t total_packet_size = cmd_packet_size + data_packet_size;
   if (receive_buffer_.size() < total_packet_size) {
     return false;

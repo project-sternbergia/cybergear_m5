@@ -1,19 +1,21 @@
 #include "cybergear_controller.hh"
+
+#include <Arduino.h>
+
 #include "cybergear_can_interface.hh"
 #include "cybergear_driver.hh"
 #include "cybergear_driver_defs.hh"
 #include "cybergear_driver_utils.hh"
 
 CybergearController::CybergearController(uint8_t master_can_id)
-  : can_(NULL)
-  , master_can_id_(master_can_id)
-  , recv_count_(0)
-{}
+: can_(NULL), master_can_id_(master_can_id), recv_count_(0)
+{
+}
 
-CybergearController::~CybergearController()
-{}
+CybergearController::~CybergearController() {}
 
-bool CybergearController::init(const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface* can)
+bool CybergearController::init(
+  const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface * can)
 {
   std::vector<CybergearSoftwareConfig> configs;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
@@ -25,7 +27,9 @@ bool CybergearController::init(const std::vector<uint8_t> & ids, uint8_t mode, C
   return init(ids, configs, mode, can);
 }
 
-bool CybergearController::init(const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs, uint8_t mode, CybergearCanInterface* can)
+bool CybergearController::init(
+  const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs,
+  uint8_t mode, CybergearCanInterface * can)
 {
   if (ids.size() != sw_configs.size()) {
     return false;
@@ -33,7 +37,7 @@ bool CybergearController::init(const std::vector<uint8_t> & ids, const std::vect
 
   // setup variables
   can_ = can;
-  motor_ids_ = ids;       // for send sequence
+  motor_ids_ = ids;  // for send sequence
   control_mode_ = mode;
 
   // create motor class
@@ -53,7 +57,8 @@ bool CybergearController::init(const std::vector<uint8_t> & ids, const std::vect
   return true;
 }
 
-bool CybergearController::set_run_mode(const std::vector<uint8_t> & ids, const std::vector<uint8_t> modes)
+bool CybergearController::set_run_mode(
+  const std::vector<uint8_t> & ids, const std::vector<uint8_t> modes)
 {
   if (ids.size() != modes.size()) return false;
   bool ret = true;
@@ -78,7 +83,7 @@ bool CybergearController::set_run_mode(uint8_t id, uint8_t mode)
   return true;
 }
 
-bool CybergearController::set_motor_config(const std::vector<CybergearHardwareConfig>& configs)
+bool CybergearController::set_motor_config(const std::vector<CybergearHardwareConfig> & configs)
 {
   bool ret = true;
   for (uint8_t idx = 0; idx < configs.size(); ++idx) {
@@ -91,7 +96,7 @@ bool CybergearController::set_motor_config(const std::vector<CybergearHardwareCo
   return ret;
 }
 
-bool CybergearController::set_motor_config(const CybergearHardwareConfig& config)
+bool CybergearController::set_motor_config(const CybergearHardwareConfig & config)
 {
   if (!check_motor_id(config.id)) return false;
 
@@ -181,7 +186,8 @@ bool CybergearController::reset_motors()
   return true;
 }
 
-bool CybergearController::send_motion_command(const std::vector<uint8_t> ids, const std::vector<CybergearMotionCommand> cmds)
+bool CybergearController::send_motion_command(
+  const std::vector<uint8_t> ids, const std::vector<CybergearMotionCommand> cmds)
 {
   // check size
   if (ids.size() != cmds.size()) {
@@ -195,18 +201,25 @@ bool CybergearController::send_motion_command(const std::vector<uint8_t> ids, co
   return ret;
 }
 
-bool CybergearController::send_motion_command(uint8_t id, const CybergearMotionCommand& cmd)
+bool CybergearController::send_motion_command(uint8_t id, const CybergearMotionCommand & cmd)
 {
   if (!check_motor_id(id)) return false;
-  float pos = std::max(std::min(cmd.position, sw_configs_[id].upper_position_limit), sw_configs_[id].lower_position_limit);
+  float pos = std::max(
+    std::min(cmd.position, sw_configs_[id].upper_position_limit),
+    sw_configs_[id].lower_position_limit);
   float cmd_pos = (pos - sw_configs_[id].position_offset) * sw_configs_[id].direction;
-  float vel = std::max(std::min(sw_configs_[id].direction * cmd.velocity, sw_configs_[id].limit_speed), -sw_configs_[id].limit_speed);
-  float eff = std::max(std::min(sw_configs_[id].direction * cmd.effort, sw_configs_[id].limit_torque), -sw_configs_[id].limit_torque);
+  float vel = std::max(
+    std::min(sw_configs_[id].direction * cmd.velocity, sw_configs_[id].limit_speed),
+    -sw_configs_[id].limit_speed);
+  float eff = std::max(
+    std::min(sw_configs_[id].direction * cmd.effort, sw_configs_[id].limit_torque),
+    -sw_configs_[id].limit_torque);
   drivers_[id].motor_control(cmd_pos, vel, eff, cmd.kp, cmd.kd);
   return true;
 }
 
-bool CybergearController::send_position_command(const std::vector<uint8_t> ids, const std::vector<float> positions)
+bool CybergearController::send_position_command(
+  const std::vector<uint8_t> ids, const std::vector<float> positions)
 {
   // check size
   if (ids.size() != positions.size()) return false;
@@ -221,13 +234,15 @@ bool CybergearController::send_position_command(const std::vector<uint8_t> ids, 
 bool CybergearController::send_position_command(uint8_t id, float position)
 {
   if (!check_motor_id(id)) return false;
-  float pos = std::max(std::min(position, sw_configs_[id].upper_position_limit), sw_configs_[id].lower_position_limit);
+  float pos = std::max(
+    std::min(position, sw_configs_[id].upper_position_limit), sw_configs_[id].lower_position_limit);
   float cmd_pos = (pos - sw_configs_[id].position_offset) * sw_configs_[id].direction;
   drivers_[id].set_position_ref(cmd_pos);
   return true;
 }
 
-bool CybergearController::send_speed_command(const std::vector<uint8_t> ids, const std::vector<float> speeds)
+bool CybergearController::send_speed_command(
+  const std::vector<uint8_t> ids, const std::vector<float> speeds)
 {
   // check size
   if (ids.size() != speeds.size()) return false;
@@ -242,12 +257,15 @@ bool CybergearController::send_speed_command(const std::vector<uint8_t> ids, con
 bool CybergearController::send_speed_command(uint8_t id, float speed)
 {
   if (!check_motor_id(id)) return false;
-  float vel = std::max(std::min(sw_configs_[id].direction * speed, sw_configs_[id].limit_speed), -sw_configs_[id].limit_speed);
+  float vel = std::max(
+    std::min(sw_configs_[id].direction * speed, sw_configs_[id].limit_speed),
+    -sw_configs_[id].limit_speed);
   drivers_[id].set_speed_ref(vel);
   return true;
 }
 
-bool CybergearController::send_current_command(const std::vector<uint8_t> ids, const std::vector<float> currents)
+bool CybergearController::send_current_command(
+  const std::vector<uint8_t> ids, const std::vector<float> currents)
 {
   // check size
   if (ids.size() != currents.size()) return false;
@@ -262,7 +280,9 @@ bool CybergearController::send_current_command(const std::vector<uint8_t> ids, c
 bool CybergearController::send_current_command(uint8_t id, float current)
 {
   if (!check_motor_id(id)) return false;
-  float cur = std::max(std::min(sw_configs_[id].direction * current, sw_configs_[id].limit_current), -sw_configs_[id].limit_current);
+  float cur = std::max(
+    std::min(sw_configs_[id].direction * current, sw_configs_[id].limit_current),
+    -sw_configs_[id].limit_current);
   drivers_[id].set_current_ref(cur);
   return true;
 }
@@ -286,7 +306,7 @@ bool CybergearController::get_motor_status(std::vector<MotorStatus> & status)
   return true;
 }
 
-bool CybergearController::get_motor_status(uint8_t id, MotorStatus& status)
+bool CybergearController::get_motor_status(uint8_t id, MotorStatus & status)
 {
   if (!check_motor_id(id)) return false;
   status = drivers_[id].get_motor_status();
@@ -296,7 +316,7 @@ bool CybergearController::get_motor_status(uint8_t id, MotorStatus& status)
   return true;
 }
 
-bool CybergearController::get_software_config(uint8_t id, CybergearSoftwareConfig& config)
+bool CybergearController::get_software_config(uint8_t id, CybergearSoftwareConfig & config)
 {
   if (!check_motor_id(id)) return false;
   config = sw_configs_[id];
@@ -306,8 +326,7 @@ bool CybergearController::get_software_config(uint8_t id, CybergearSoftwareConfi
 bool CybergearController::process_packet()
 {
   bool is_updated = false;
-  while (can_->available())
-  {
+  while (can_->available()) {
     unsigned long id;
     uint8_t len;
     if (!can_->read_message(id, receive_buffer_, len)) {
@@ -316,8 +335,10 @@ bool CybergearController::process_packet()
 
     // if id is not mine
     uint8_t receive_can_id = id & 0xff;
-    if ( receive_can_id != master_can_id_ ) {
-      CG_DEBUG_PRINTF("Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_, receive_can_id, id);
+    if (receive_can_id != master_can_id_) {
+      CG_DEBUG_PRINTF(
+        "Invalid master can id. Expected=[0x%02x] Actual=[0x%02x] Raw=[%x]\n", master_can_id_,
+        receive_can_id, id);
       continue;
     }
 
@@ -350,10 +371,7 @@ bool CybergearController::reset_update_flag(uint8_t id)
   return true;
 }
 
-std::vector<uint8_t> CybergearController::motor_ids() const
-{
-  return motor_ids_;
-}
+std::vector<uint8_t> CybergearController::motor_ids() const { return motor_ids_; }
 
 bool CybergearController::check_motor_id(uint8_t id)
 {

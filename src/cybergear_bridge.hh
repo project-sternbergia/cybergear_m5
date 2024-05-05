@@ -1,13 +1,15 @@
 #ifndef CYBER_GEAR_BRIDGE_HH
 #define CYBER_GEAR_BRIDGE_HH
 
-#include <Stream.h>
 #include <RingBuf.h>
+#include <Stream.h>
 #include <sys/types.h>
-#include <vector>
+
 #include <cstdint>
-#include "cybergear_controller.hh"
+#include <vector>
+
 #include "cybergear_bridge_packet.hh"
+#include "cybergear_controller.hh"
 
 typedef std::vector<uint8_t> ByteArray;
 
@@ -17,7 +19,7 @@ typedef std::vector<uint8_t> ByteArray;
 class CybergearBridge
 {
 public:
-  CybergearBridge(CybergearController *controller, Stream *stream);
+  CybergearBridge(CybergearController * controller, Stream * stream);
   virtual ~CybergearBridge();
 
   /**
@@ -35,18 +37,18 @@ public:
 
 private:
   // process motor requests
-  void process_enable_motor_request(const ByteArray& request_packet);
-  void process_reset_motor_request(const ByteArray& request_packet);
-  void process_position_control_request(const ByteArray& request_packet);
-  void process_speed_control_request(const ByteArray& request_packet);
-  void process_current_control_request(const ByteArray& request_packet);
-  void process_motion_control_request(const ByteArray& request_packet);
-  void process_set_mech_position_to_zero_request(const ByteArray& request_packet);
-  void process_set_limit_speed(const ByteArray& request_packet);
-  void process_set_limit_current(const ByteArray& request_packet);
-  void process_set_limit_torque(const ByteArray& request_packet);
-  void process_set_position_control_gain(const ByteArray& request_packet);
-  void process_set_velocity_control_gain(const ByteArray& request_packet);
+  void process_enable_motor_request(const ByteArray & request_packet);
+  void process_reset_motor_request(const ByteArray & request_packet);
+  void process_position_control_request(const ByteArray & request_packet);
+  void process_speed_control_request(const ByteArray & request_packet);
+  void process_current_control_request(const ByteArray & request_packet);
+  void process_motion_control_request(const ByteArray & request_packet);
+  void process_set_mech_position_to_zero_request(const ByteArray & request_packet);
+  void process_set_limit_speed(const ByteArray & request_packet);
+  void process_set_limit_current(const ByteArray & request_packet);
+  void process_set_limit_torque(const ByteArray & request_packet);
+  void process_set_position_control_gain(const ByteArray & request_packet);
+  void process_set_velocity_control_gain(const ByteArray & request_packet);
 
   // send motor status to pc
   void send_motor_status_response(uint8_t id, uint8_t seq);
@@ -54,9 +56,9 @@ private:
   // get next packet from buffer for host-pc request
   bool get_next_packet(ByteArray & request_packet);
 
-  CybergearController *p_controller_;     //!< Controller object pointer
-  Stream *p_stream_;                      //!< Stream object pointer to communicate with ros
+  CybergearController * p_controller_;    //!< Controller object pointer
+  Stream * p_stream_;                     //!< Stream object pointer to communicate with ros
   RingBuf<uint8_t, 512> receive_buffer_;  //!< receive buffer
 };
 
-#endif // CYBER_GEAR_BRIDGE_HH
+#endif  // CYBER_GEAR_BRIDGE_HH
