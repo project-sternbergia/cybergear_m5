@@ -118,10 +118,13 @@ public:
    * @param ids     motor ids
    * @param mode    control mode (motion, position, speed or current)
    * @param can     can control class
+   * @param wait_response_time_usec wait response time after send command
    * @return true   succeeded to init this class
    * @return false  failed to init this class
    */
-  bool init(const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface * can);
+  bool init(
+    const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface * can,
+    uint16_t wait_response_time_usec = 0);
 
   /**
    * @brief Init cybergear controller class
@@ -130,12 +133,13 @@ public:
    * @param sw_configs    motor software config (e.g speed_limit, current_limit, position_limit, offset, etc)
    * @param mode          control mode (motion, position, speed or current)
    * @param can           can control class
+   * @param wait_response_time_usec wait response time after send command
    * @return true         succeeded to init this class
    * @return false        failed to init this class
    */
   bool init(
     const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs,
-    uint8_t mode, CybergearCanInterface * can);
+    uint8_t mode, CybergearCanInterface * can, uint16_t wait_response_time_usec = 0);
 
   /**
    * @brief Set the run mode

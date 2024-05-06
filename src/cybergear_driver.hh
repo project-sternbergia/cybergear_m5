@@ -80,8 +80,9 @@ public:
    * @brief Init this class
    *
    * @param ican CybergearCanInterface object for communication
+   * @param wait_response_time_usec wait response time after send command
    */
-  void init(CybergearCanInterface * ican);
+  void init(CybergearCanInterface * ican, uint16_t wait_response_time_usec = 0);
 
   /**
    * @brief Init motor
@@ -375,14 +376,15 @@ private:
    */
   void print_can_packet(uint32_t id, const uint8_t * data, uint8_t len);
 
-  CybergearCanInterface * can_;  //!< can connection instance
-  uint8_t master_can_id_;        //!< master can id
-  uint8_t target_can_id_;        //!< target can id
-  uint8_t run_mode_;             //!< run mode
-  uint8_t receive_buffer_[64];   //!< receive buffer
-  MotorStatus motor_status_;     //!< current motor status
-  MotorParameter motor_param_;   //!< motor parameter
-  unsigned long send_count_;     //!< send count
+  CybergearCanInterface * can_;       //!< can connection instance
+  uint16_t wait_response_time_usec_;  //!< wait response time usec after send command
+  uint8_t master_can_id_;             //!< master can id
+  uint8_t target_can_id_;             //!< target can id
+  uint8_t run_mode_;                  //!< run mode
+  uint8_t receive_buffer_[64];        //!< receive buffer
+  MotorStatus motor_status_;          //!< current motor status
+  MotorParameter motor_param_;        //!< motor parameter
+  unsigned long send_count_;          //!< send count
 };
 
 #endif  // !CYBER_GEAR_DRIVER_H
