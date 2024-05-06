@@ -24,7 +24,11 @@ CybergearDriver::CybergearDriver(uint8_t master_can_id, uint8_t target_can_id)
 
 CybergearDriver::~CybergearDriver() {}
 
-void CybergearDriver::init(CybergearCanInterface * can) { can_ = can; }
+void CybergearDriver::init(CybergearCanInterface * can, uint16_t wait_response_time_usec)
+{
+  can_ = can;
+  wait_response_time_usec_ = wait_response_time_usec;
+}
 
 void CybergearDriver::init_motor(uint8_t run_mode)
 {
@@ -277,6 +281,7 @@ void CybergearDriver::send_command(
 {
   uint32_t id = cmd_id << 24 | option << 8 | can_id;
   can_->send_message(id, data, len, true);
+  delayMicroseconds(wait_response_time_usec_);
   ++send_count_;
 }
 

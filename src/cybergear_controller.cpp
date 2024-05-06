@@ -15,7 +15,8 @@ CybergearController::CybergearController(uint8_t master_can_id)
 CybergearController::~CybergearController() {}
 
 bool CybergearController::init(
-  const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface * can)
+  const std::vector<uint8_t> & ids, uint8_t mode, CybergearCanInterface * can,
+  uint16_t wait_response_time_usec)
 {
   std::vector<CybergearSoftwareConfig> configs;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
@@ -24,12 +25,12 @@ bool CybergearController::init(
     configs.push_back(config);
   }
 
-  return init(ids, configs, mode, can);
+  return init(ids, configs, mode, can, wait_response_time_usec);
 }
 
 bool CybergearController::init(
   const std::vector<uint8_t> & ids, const std::vector<CybergearSoftwareConfig> & sw_configs,
-  uint8_t mode, CybergearCanInterface * can)
+  uint8_t mode, CybergearCanInterface * can, uint16_t wait_response_time_usec)
 {
   if (ids.size() != sw_configs.size()) {
     return false;
@@ -43,7 +44,7 @@ bool CybergearController::init(
   // create motor class
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     CybergearDriver driver = CybergearDriver(master_can_id_, ids[idx]);
-    driver.init(can_);
+    driver.init(can_, wait_response_time_usec);
     driver.init_motor(mode);
     drivers_[ids[idx]] = driver;
     motor_update_flag_[ids[idx]] = false;
