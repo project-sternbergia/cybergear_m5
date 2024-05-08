@@ -1,6 +1,8 @@
 #include "cybergear_can_interface_esp32.hh"
 
-#include <M5Stack.h>
+#ifdef USE_ESP32_CAN
+
+// #include <M5Stack.h>
 #include <RingBuf.h>
 
 #include <cstdint>
@@ -92,3 +94,5 @@ bool CybergearCanInterfaceEsp32::available()
   CG_DEBUG_FUNC
   return (buffer.isEmpty() == false);
 }
+
+#endif  // USE_ESP32_CAN

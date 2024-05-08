@@ -1,7 +1,8 @@
 #include "cybergear_bridge_packet.hh"
 
-#include <M5Stack.h>
 #include <memory.h>
+
+#include "cybergear_driver_utils.hh"
 
 RequestPacket::RequestPacket(uint8_t type, uint16_t size, const ByteArray & packet)
 : Packet(type, packet[2], size)
@@ -14,7 +15,7 @@ bool RequestPacket::unpack()
 {
   // check packet size
   if (command_packet_.size() != CommandPacketSize) {
-    M5.Lcd.println("invalid command packet size");
+    CG_DEBUG_PRINTLN("invalid command packet size");
     return false;
   }
 
@@ -38,7 +39,7 @@ bool RequestPacket::check_checksum() const
       check_sum = (check_sum + command_packet_[idx]) & 0xFF;
     }
     if (check_sum != command_packet_.back()) {
-      // M5.Lcd.println("invalid command packet checksum");
+      CG_DEBUG_PRINTLN("invalid command packet checksum");
       return false;
     }
   }
@@ -50,7 +51,7 @@ bool RequestPacket::check_checksum() const
       check_sum = (check_sum + data_packet_[idx]) & 0xFF;
     }
     if (check_sum != data_packet_.back()) {
-      // M5.Lcd.println("invalid data packet checksum");
+      CG_DEBUG_PRINTLN("invalid data packet checksum");
       return false;
     }
   }
@@ -61,17 +62,17 @@ bool RequestPacket::validate() const
 {
   // check header
   if (packet_header_ != Packet::Header) {
-    // M5.Lcd.println("invalid header");
+    CG_DEBUG_PRINTLN("invalid header");
     return false;
   }
 
   if (packet_type_ >= static_cast<uint8_t>(Type::_INVALID_TYPE_RANGE)) {
-    // M5.Lcd.println("invalid packet type");
+    CG_DEBUG_PRINTLN("invalid packet type");
     return false;
   }
 
   if (packet_data_size_ != data_packet_.size()) {
-    // M5.Lcd.println("invalid data size");
+    CG_DEBUG_PRINTLN("invalid data size");
     return false;
   }
   return check_checksum();

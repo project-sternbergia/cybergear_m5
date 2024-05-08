@@ -1,5 +1,7 @@
 #include "cybergear_can_interface_mcp.hh"
 
+#ifdef USE_MCP_CAN
+
 #include "cybergear_driver_utils.hh"
 #include "mcp_can.h"
 
@@ -50,3 +52,5 @@ bool CybergearCanInterfaceMcp::available()
   }
   return true;
 }
+
+#endif  // USE_MCP_CAN

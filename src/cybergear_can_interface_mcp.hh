@@ -1,5 +1,6 @@
 #ifndef CYBERGEAR_CAN_INTERFACE_MCP_HH
 #define CYBERGEAR_CAN_INTERFACE_MCP_HH
+#ifdef USE_MCP_CAN
 
 #include "cybergear_can_interface.hh"
 #define M5_COMMU_BORAD_CS_PIN 12
@@ -23,4 +24,5 @@ private:
   uint8_t receive_buffer_[64];  //!< receive buffer
 };
 
+#endif
 #endif  // CYBERGEAR_CAN_INTERFACE_MCP_HH

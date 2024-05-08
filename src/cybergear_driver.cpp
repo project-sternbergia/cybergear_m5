@@ -1,7 +1,6 @@
 #include "cybergear_driver.hh"
 
-#include <Arduino.h>
-#include <M5Stack.h>
+#include <Arduino.h>  // for micros and delay function
 
 #include <vector>
 
@@ -202,11 +201,9 @@ bool CybergearDriver::process_packet()
 {
   CG_DEBUG_FUNC
   bool check_update = false;
-  while (true) {
+  while (can_->available()) {
     if (receive_motor_data(motor_status_)) {
       check_update = true;
-    } else {
-      break;
     }
   }
   return check_update;
@@ -433,13 +430,10 @@ void CybergearDriver::process_read_parameter_packet(const uint8_t * data, unsign
 
 void CybergearDriver::print_can_packet(uint32_t id, const uint8_t * data, uint8_t len)
 {
-  Serial.print("Id : ");
-  Serial.print(id, HEX);
-
-  Serial.print(" Data : ");
-  for (byte i = 0; i < len; i++) {
-    Serial.print(data[i], HEX);
-    Serial.print(" ");
+  CG_DEBUG_PRINTF("Id: 0x%x ", id);
+  CG_DEBUG_PRINTF("Data: ");
+  for (uint8_t idx = 0; idx < len; ++idx) {
+    CG_DEBUG_PRINTF("%x ", data[idx]);
   }
-  Serial.print("\n");
+  CG_DEBUG_PRINTLN("");
 }

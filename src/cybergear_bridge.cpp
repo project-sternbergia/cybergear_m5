@@ -1,7 +1,5 @@
 #include "cybergear_bridge.hh"
 
-#include <M5Stack.h>
-
 #include <cstdint>
 
 #include "cybergear_bridge.hh"

@@ -1,6 +1,8 @@
 #ifndef CYBERGEAR_CAN_INTERFACE_ESP32_HH
 #define CYBERGEAR_CAN_INTERFACE_ESP32_HH
 
+#ifdef USE_ESP32_CAN
+
 #include "cybergear_can_interface.hh"
 
 #define M5_CANBUS_TRANSIVER_UNIT
@@ -26,4 +28,5 @@ private:
   uint8_t receive_buffer_[64];  //!< receive buffer
 };
 
+#endif  // USE_ESP32_CAN
 #endif  // ESP_CAN_INTERFACE_HH
