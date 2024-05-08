@@ -1,5 +1,6 @@
 #ifndef CYBERGEAR_CAN_INTERFACE_TWAI_HH
 #define CYBERGEAR_CAN_INTERFACE_TWAI_HH
+#ifdef USE_TWAI_CAN
 
 #include "cybergear_can_interface.hh"
 
@@ -17,4 +18,5 @@ public:
   virtual bool available();
 };
 
+#endif  // USE_TWAI_CAN
 #endif  // CYBERGEAR_CAN_INTERFACE_TWAI_HH

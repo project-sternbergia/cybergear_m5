@@ -1,6 +1,6 @@
 #include "cybergear_can_interface_twai.hh"
 
-// #include <M5Unified.h>
+#ifdef USE_TWAI_CAN
 
 #include "ESP32-TWAI-CAN.hpp"
 #include "cybergear_driver_utils.hh"
@@ -47,3 +47,5 @@ bool CybergearCanInterfaceTwai::available()
   CG_DEBUG_FUNC
   return (ESP32Can.inRxQueue() > 0);
 }
+
+#endif  // USE_TWAI_CAN

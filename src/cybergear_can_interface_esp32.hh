@@ -1,6 +1,5 @@
 #ifndef CYBERGEAR_CAN_INTERFACE_ESP32_HH
 #define CYBERGEAR_CAN_INTERFACE_ESP32_HH
-
 #ifdef USE_ESP32_CAN
 
 #include "cybergear_can_interface.hh"
