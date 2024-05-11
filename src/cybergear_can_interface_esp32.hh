@@ -1,6 +1,6 @@
 #ifndef CYBERGEAR_CAN_INTERFACE_ESP32_HH
 #define CYBERGEAR_CAN_INTERFACE_ESP32_HH
-#ifdef USE_ESP32_CAN
+#ifdef CONFIG_IDF_TARGET_ESP32
 
 #include "cybergear_can_interface.hh"
 
@@ -27,5 +27,5 @@ private:
   uint8_t receive_buffer_[64];  //!< receive buffer
 };
 
-#endif  // USE_ESP32_CAN
+#endif  //CONFIG_IDF_TARGET_ESP32
 #endif  // ESP_CAN_INTERFACE_HH

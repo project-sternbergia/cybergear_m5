@@ -1,6 +1,6 @@
 #include "cybergear_can_interface_twai.hh"
 
-#ifdef USE_TWAI_CAN
+#ifdef CONFIG_IDF_TARGET_ESP32S3
 
 #include "ESP32-TWAI-CAN.hpp"
 #include "cybergear_driver_utils.hh"
@@ -48,4 +48,4 @@ bool CybergearCanInterfaceTwai::available()
   return (ESP32Can.inRxQueue() > 0);
 }
 
-#endif  // USE_TWAI_CAN
+#endif  // CONFIG_IDF_TARGET_ESP32S3

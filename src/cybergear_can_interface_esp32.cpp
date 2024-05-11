@@ -1,6 +1,6 @@
 #include "cybergear_can_interface_esp32.hh"
 
-#ifdef USE_ESP32_CAN
+#ifdef CONFIG_IDF_TARGET_ESP32
 
 // #include <M5Stack.h>
 #include <RingBuf.h>
@@ -95,4 +95,4 @@ bool CybergearCanInterfaceEsp32::available()
   return (buffer.isEmpty() == false);
 }
 
-#endif  // USE_ESP32_CAN
+#endif  //  CONFIG_IDF_TARGET_ESP32
