@@ -3,6 +3,8 @@
 #include <M5Stack.h>
 #include "cybergear_driver.hh"
 
+// #define USE_ESP32_CAN  // If you want to use ESP32_CAN or PWRCAN, please uncomment this line
+// #define USE_PWRCAN     // If you want to use PWRCAN, please uncomment this line
 #ifdef USE_ESP32_CAN
 #include "cybergear_can_interface_esp32.hh"
 #else
@@ -67,7 +69,12 @@ void setup()
   sprite.createSprite(M5.Lcd.width(), M5.Lcd.height());
 
   // init cybergear driver
+#ifdef USE_PWRCAN
+  interface.init(16, 17);
+#else
   interface.init();
+#endif
+
   driver.init(&interface);
   driver.init_motor(mode);
   driver.set_limit_speed(init_speed);
