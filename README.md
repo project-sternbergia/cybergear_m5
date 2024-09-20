@@ -22,6 +22,14 @@ M5 stack library for cybergear
 
 ![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/c36d82cf-e91a-45da-ac53-a79e8d8fc730)
 
+## H/W Components (ESP32 + PWRCAN)
+
+* [Xiaomi Cybergear](https://www.mi.com/cyber-gear)
+* [M5Stack Basic V2.7](https://shop.m5stack.com/collections/m5-controllers/products/esp32-basic-core-lot-development-kit-v2-7)
+* [PWRCAN 13.2 Module with Isolated 2-Ch CAN & 1-Ch RS485](https://shop.m5stack.com/products/pwrcan-13-2-module-with-isolated-2-ch-can-1-ch-rs485)
+
+![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/c36d82cf-e91a-45da-ac53-a79e8d8fc730)
+
 ## H/W Components (ESP32 + CAN Transceiver Unit)
 
 * [Xiaomi Cybergear](https://www.mi.com/cyber-gear)
@@ -62,7 +70,7 @@ git clone https://github.com/project-sternbergia/cybergear_m5.git
     ![image](https://github.com/project-sternbergia/cybergear_m5/assets/147309062/8a4edd90-241c-4683-a13d-4a26685e8251)
 
     Put this file in the same folder as control_mode_example.ino (for Arduino IDE)
-
+    If you want to use ESP32_CAN library, please comment in [this lines]().
 
 4. Build and write firmware to M5Stack
 
