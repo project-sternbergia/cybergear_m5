@@ -253,6 +253,14 @@ public:
   void read_ram_data(uint16_t index);
 
   /**
+   * @brief Read parameter data (AppCodeName, etc) from target motor
+   *        If you need detailed information, please check the datasheet 3.3.3
+   *
+   * @param index target address of data (chose from ADDR_XXX definitions)
+   */
+  void read_param(uint16_t index);
+
+  /**
    * @brief Get current run mode
    *
    * @return uint8_t  run mode
@@ -306,7 +314,7 @@ public:
    */
   unsigned long send_count() const { return send_count_; }
 
-private:
+// private:
   /**
    * @brief Write float data to target motor
    *
@@ -368,6 +376,8 @@ private:
    */
   void process_read_parameter_packet(const uint8_t * data, unsigned long len);
 
+  void process_read_table_parameter_packet(const uint8_t * data, unsigned long len);
+
   /**
    * @brief Print byte array as serial output
    *
@@ -385,6 +395,8 @@ private:
   MotorStatus motor_status_;          //!< current motor status
   MotorParameter motor_param_;        //!< motor parameter
   unsigned long send_count_;          //!< send count
+
+  char string_buffer[64];
 };
 
 #endif  // !CYBER_GEAR_DRIVER_H

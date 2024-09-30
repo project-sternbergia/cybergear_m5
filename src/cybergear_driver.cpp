@@ -1,7 +1,7 @@
 #include "cybergear_driver.hh"
 
 #include <Arduino.h>
-#include <M5Stack.h>
+// #include <M5Stack.h>
 
 #include <vector>
 
@@ -194,6 +194,12 @@ void CybergearDriver::read_ram_data(uint16_t index)
   send_command(target_can_id_, CMD_RAM_READ, master_can_id_, 8, data);
 }
 
+void CybergearDriver::read_param(uint16_t index)
+{
+  uint8_t data[8] = { uint8_t(index & 0xff), uint8_t((index >> 8) & 0xff) };
+  send_command(target_can_id_, CMD_PARAM_TABLE_READ, master_can_id_, 8, data);
+}
+
 uint8_t CybergearDriver::get_run_mode() const { return run_mode_; }
 
 uint8_t CybergearDriver::get_motor_id() const { return target_can_id_; }
@@ -236,6 +242,8 @@ bool CybergearDriver::update_motor_status(unsigned long id, const uint8_t * data
   } else if (packet_type == CMD_GET_MOTOR_FAIL) {
     // NOT IMPLEMENTED
 
+  } else if (packet_type == CMD_PARAM_TABLE_READ) {
+    process_read_table_parameter_packet(data, len);
   } else {
     CG_DEBUG_PRINTF("invalid command response [0x%x]\n", packet_type);
     print_can_packet(id, data, len);
@@ -347,6 +355,10 @@ void CybergearDriver::process_read_parameter_packet(const uint8_t * data, unsign
 
   bool is_updated = true;
 
+  CG_DEBUG_PRINTF(
+    "received parameter value index=[0x%04x] data=%02x %02x %02x %02x %02x %02x %02x %02x\n", index,
+    data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+
   switch (index) {
     case ADDR_RUN_MODE:
       motor_param_.run_mode = uint8_data;
@@ -421,13 +433,47 @@ void CybergearDriver::process_read_parameter_packet(const uint8_t * data, unsign
       CG_DEBUG_PRINTF("Receive ADDR_SPD_KI = [%f]\n", float_data);
       break;
     default:
-      CG_DEBUG_PRINTF("Unknown parameter value index=[0x%04x]\n", index);
+      CG_DEBUG_PRINTF(
+        "Unknown parameter value index=[0x%04x] data=%02x %02x %02x %02x %02x %02x %02x %02x\n",
+        index, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+
       is_updated = false;
       break;
   }
 
   if (is_updated) {
     motor_param_.stamp_usec = micros();
+  }
+}
+
+void CybergearDriver::process_read_table_parameter_packet(const uint8_t * data, unsigned long len)
+{
+  if (len < 5) {
+    CG_DEBUG_PRINTF("received parameter packet too short: %d", len);
+  }
+  
+  uint16_t index = data[1] << 8 | data[0];
+  uint16_t data_type = data[2];
+
+  CG_DEBUG_PRINTF(
+    "received parameter value index=[0x%04x] data=%02x %02x %02x %02x %02x %02x %02x %02x\n", index,
+    data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+
+  if (data_type == PARAM_TYPE_STRING) {
+    int string_index = data[3] * 4;
+    int chunk_length = len - 4;
+    
+    if (string_index + chunk_length >= sizeof(string_buffer)) {
+      CG_DEBUG_PRINTF("received parameter too long: %d", string_index);
+    }
+
+    memcpy(string_buffer + string_index, data + 4, len - 4);
+
+    if (data[len-1] == 0x00) {
+      // string has been completed
+      CG_DEBUG_PRINTF("received paramater string: %s\n", string_buffer)
+    }
+
   }
 }
 
@@ -438,7 +484,7 @@ void CybergearDriver::print_can_packet(uint32_t id, const uint8_t * data, uint8_
 
   Serial.print(" Data : ");
   for (byte i = 0; i < len; i++) {
-    Serial.print(data[i], HEX);
+    Serial.printf("%02x", data[i]);
     Serial.print(" ");
   }
   Serial.print("\n");
