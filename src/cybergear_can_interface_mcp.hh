@@ -17,6 +17,7 @@ public:
   virtual bool send_message(uint32_t id, const uint8_t * data, uint8_t len, bool ext);
   virtual bool read_message(unsigned long & id, uint8_t * data, uint8_t & len);
   virtual bool available();
+  virtual bool support_interrupt();
 
 private:
   MCP_CAN * pcan_ = nullptr;
