@@ -65,6 +65,9 @@ bool CybergearController::set_run_mode(
   bool ret = true;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     ret &= set_run_mode(ids[idx], modes[idx]);
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return ret;
 }
@@ -73,6 +76,9 @@ bool CybergearController::set_run_mode(uint8_t mode)
 {
   for (uint8_t idx = 0; idx < motor_ids_.size(); ++idx) {
     drivers_[motor_ids_[idx]].set_run_mode(mode);
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return true;
 }
@@ -168,6 +174,9 @@ bool CybergearController::enable_motors()
 {
   for (uint8_t idx = 0; idx < motor_ids_.size(); ++idx) {
     drivers_[motor_ids_[idx]].enable_motor();
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return true;
 }
@@ -183,6 +192,9 @@ bool CybergearController::reset_motors()
 {
   for (uint8_t idx = 0; idx < motor_ids_.size(); ++idx) {
     drivers_[motor_ids_[idx]].reset_motor();
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return true;
 }
@@ -198,6 +210,9 @@ bool CybergearController::send_motion_command(
   bool ret = true;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     ret &= send_motion_command(ids[idx], cmds[idx]);
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return ret;
 }
@@ -228,6 +243,9 @@ bool CybergearController::send_position_command(
   bool ret = true;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     ret &= send_position_command(ids[idx], positions[idx]);
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return ret;
 }
@@ -251,6 +269,9 @@ bool CybergearController::send_speed_command(
   bool ret = true;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     ret &= send_speed_command(ids[idx], speeds[idx]);
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return ret;
 }
@@ -274,6 +295,9 @@ bool CybergearController::send_current_command(
   bool ret = true;
   for (uint8_t idx = 0; idx < ids.size(); ++idx) {
     ret &= send_current_command(ids[idx], currents[idx]);
+    if (!can_->support_interrupt()) {
+      process_packet();
+    }
   }
   return ret;
 }
