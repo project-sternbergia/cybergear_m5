@@ -50,3 +50,5 @@ bool CybergearCanInterfaceMcp::available()
   }
   return true;
 }
+
+bool CybergearCanInterfaceMcp::support_interrupt() { return false; }

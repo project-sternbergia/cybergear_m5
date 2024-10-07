@@ -92,3 +92,5 @@ bool CybergearCanInterfaceEsp32::available()
   CG_DEBUG_FUNC
   return (buffer.isEmpty() == false);
 }
+
+bool CybergearCanInterfaceEsp32::support_interrupt() { return true; }
